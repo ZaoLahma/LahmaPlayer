@@ -11,7 +11,7 @@ namespace LahmaPlayer::AudioFile
         AudioWavFile(const std::string& fileName) : AudioFile(fileName) {}
         ~AudioWavFile() {}
 
-        AudioFileFormat getAudioFileFormat() override;
+        AudioFormat getAudioFormat() override;
         bool hasMore() override;
         void read(std::vector<float>& samples, int numSamples) override;
 

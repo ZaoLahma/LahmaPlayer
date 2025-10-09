@@ -1,6 +1,6 @@
 #pragma once
 
-#include "AudioFile.h"
+#include "AudioSource.h"
 
 #include <memory>
 #include <portaudio.h>
@@ -13,7 +13,7 @@ namespace LahmaPlayer::AudioStream
         AudioStream();
         ~AudioStream();
 
-        void start(std::shared_ptr<AudioFile::AudioFile> audioFile);
+        void start(std::shared_ptr<AudioSource::AudioSource> audioSource);
         void stop();
 
         void waitUntilFinished();
@@ -28,8 +28,8 @@ namespace LahmaPlayer::AudioStream
 
         int callback(void *outputBuffer, unsigned long frameCount);
 
-        std::shared_ptr<AudioFile::AudioFile> m_audioFile;
-        AudioFile::AudioFile::AudioFileFormat m_audioFormat;
+        std::shared_ptr<AudioSource::AudioSource> m_audioSource;
+        AudioSource::AudioSource::AudioFormat m_audioFormat;
         PaStream* m_stream;
         bool m_playing = false;
     };

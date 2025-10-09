@@ -9,11 +9,11 @@ namespace LahmaPlayer
 namespace AudioFile
 {
 
-    AudioWavFile::AudioFileFormat AudioWavFile::getAudioFileFormat()
+    AudioWavFile::AudioFormat AudioWavFile::getAudioFormat()
     {
         m_file.read(reinterpret_cast<char*>(&m_header), sizeof(m_header));
         
-        AudioFileFormat format;
+        AudioFormat format;
         format.numChannels = m_header.numChannels;
         format.sampleRate = m_header.sampleRate;
         format.bitsPerSample = m_header.bitsPerSample;

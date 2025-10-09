@@ -19,13 +19,13 @@ namespace LahmaPlayer::AudioStream
         Pa_Terminate();
     }
 
-    void AudioStream::start(std::shared_ptr<AudioFile::AudioFile> audioFile)
+    void AudioStream::start(std::shared_ptr<AudioSource::AudioSource> audioSource)
     {
-        m_audioFile = audioFile;
+        m_audioSource = audioSource;
         m_playing = true;
 
         Pa_Initialize();
-        m_audioFormat = m_audioFile->getAudioFileFormat();
+        m_audioFormat = m_audioSource->getAudioFormat();
         Pa_OpenDefaultStream(&m_stream, 0, m_audioFormat.numChannels, paFloat32, m_audioFormat.sampleRate, 256,
                            &AudioStream::callbackStatic, this);
         Pa_StartStream(m_stream);
@@ -65,7 +65,7 @@ namespace LahmaPlayer::AudioStream
     {
         static thread_local std::vector<float> samples;
         samples.resize(frameCount * m_audioFormat.numChannels);
-        m_audioFile->read(samples, frameCount * m_audioFormat.numChannels);
+        m_audioSource->read(samples, frameCount * m_audioFormat.numChannels);
 
         float *out = (float*)output;
         
@@ -75,7 +75,7 @@ namespace LahmaPlayer::AudioStream
             out[i] = samples[i];
         }
         
-        if (m_audioFile->hasMore())
+        if (m_audioSource->hasMore())
         {
             return paContinue;
         }
