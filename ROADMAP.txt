@@ -1,0 +1,13 @@
+* More audio format support
+    - MP3 support
+        - https://github.com/lieff/minimp3
+
+* GUI
+    - FTXUI ?? Terminal anyway
+
+* Equalizer
+
+* Seek in played audio
+
+* Remember state on shutdown (resume where left off) ??
+    - Way, way in the future

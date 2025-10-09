@@ -21,12 +21,12 @@ namespace AudioFile
         return format;
     }
 
-    bool AudioWavFile::hasMore()
+    bool AudioWavFile::hasMore() const
     {
         return m_hasMore;
     }
 
-    void AudioWavFile::read(std::vector<float>& samples, int numSamples)
+    void AudioWavFile::read(std::vector<float>& samples, uint32_t numSamples)
     {
         samples.resize(numSamples);
         

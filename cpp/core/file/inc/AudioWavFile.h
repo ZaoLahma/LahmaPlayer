@@ -12,8 +12,8 @@ namespace LahmaPlayer::AudioFile
         ~AudioWavFile() {}
 
         AudioFormat getAudioFormat() override;
-        bool hasMore() override;
-        void read(std::vector<float>& samples, int numSamples) override;
+        bool hasMore() const override;
+        void read(std::vector<float>& samples, uint32_t numSamples) override;
 
     private:
         struct WavHeader

@@ -7,6 +7,10 @@
 
 namespace LahmaPlayer::AudioStream
 {
+    /**
+    * @class AudioStream
+    * @brief AudioStream is a class that is used to stream audio data
+    */
     class AudioStream
     {
     public:
