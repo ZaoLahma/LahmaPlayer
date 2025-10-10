@@ -1,23 +1,29 @@
 #include "DspEngine.h"
 
+#include <iostream>
+
 namespace LahmaPlayer::DspEngine
 {
     DspEngine::~DspEngine() {}
 
     void DspEngine::read(std::vector<float>& samples, uint32_t numSamples) 
     {
-        uint32_t largestRequiredNumSamples = numSamples;
+        std::vector<size_t> inNeeded(m_signalModifiers.size() + 1);
+
+        // Check how many samples each "layer" needs, starting with the absolute minimum amount
+        // as given by numSamples
+        inNeeded.back() = numSamples;
+        for (int32_t i = m_signalModifiers.size() - 1; i >= 0; --i)
+        {
+            inNeeded[i] = m_signalModifiers[i]->requiredNumSamples(inNeeded[i + 1]);
+        }
+
+        samples.resize(inNeeded[0]);
+        m_audioSource->read(samples, inNeeded[0]);
 
         for (uint32_t i = 0; i < m_signalModifiers.size(); i++)
         {
-            largestRequiredNumSamples = std::max(largestRequiredNumSamples, m_signalModifiers[i]->requiredNumSamples(numSamples));
-        }
-
-        m_audioSource->read(samples, largestRequiredNumSamples);
-
-        for (const auto& signalModifier : m_signalModifiers)
-        {
-            signalModifier->modify(samples);
+            m_signalModifiers[i]->modify(samples, inNeeded[i]);
         }
     }
 

@@ -14,7 +14,7 @@ namespace LahmaPlayer::SignalModifier
 
         void setGain(float gain);
         uint32_t requiredNumSamples(uint32_t numSamples) const override { return numSamples; }
-        void modify(std::vector<float>& samples) const override;
+        void modify(std::vector<float>& samples, uint32_t numSamples) const override;
 
     private:
         float m_gain;

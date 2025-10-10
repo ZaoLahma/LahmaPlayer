@@ -65,6 +65,9 @@ namespace LahmaPlayer::AudioStream
     {
         static thread_local std::vector<float> samples;
         samples.resize(frameCount * m_audioFormat.numChannels);
+
+        // This does quite a lot of heavy lifting. Might need to be extracted to a separate
+        // data crunching thread
         m_audioSource->read(samples, frameCount * m_audioFormat.numChannels);
 
         float *out = (float*)output;
