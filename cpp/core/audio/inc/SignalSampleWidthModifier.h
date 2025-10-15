@@ -11,7 +11,7 @@ namespace LahmaPlayer::SignalModifier
     public:
         void setSampleBits(int bits);
         uint32_t requiredNumSamples(uint32_t numSamples) const override { return numSamples; }
-        void modify(std::vector<float>& samples, uint32_t numSamples) const override;
+        void modify(std::vector<float>& samples) const override;
 
     private:
         uint8_t m_sampleBits = 16;

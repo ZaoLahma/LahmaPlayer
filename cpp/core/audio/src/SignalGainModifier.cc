@@ -9,9 +9,9 @@ namespace LahmaPlayer::SignalModifier
         m_gain = std::clamp(gain, 0.0f, 2.0f);
     }
 
-    void SignalGainModifier::modify(std::vector<float>& samples, uint32_t numSamples) const
+    void SignalGainModifier::modify(std::vector<float>& samples) const
     {
-        for (int i = 0; i < numSamples; i++)
+        for (int i = 0; i < samples.size(); i++)
         {
             samples[i] *= m_gain;
         }

@@ -9,11 +9,11 @@ namespace LahmaPlayer::SignalModifier
         m_sampleBits = std::clamp(bits, 1, 16); 
     }
 
-    void SignalSampleWidthModifier::modify(std::vector<float>& samples, uint32_t numSamples) const
+    void SignalSampleWidthModifier::modify(std::vector<float>& samples) const
     {
         float levels = (1 << m_sampleBits);  // 2^bits levels
         
-        for (size_t i = 0; i < numSamples; i++)
+        for (size_t i = 0; i < samples.size(); i++)
         {
             // 1. Scale to integer range
             float scaled = samples[i] * levels;

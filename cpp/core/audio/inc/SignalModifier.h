@@ -16,8 +16,7 @@ namespace LahmaPlayer::SignalModifier
         /**
         * @brief modify modifies the audio data
         * @param samples The audio data to modify
-        * @param numSamples The number of samples to modify
         */
-        virtual void modify(std::vector<float>& samples, uint32_t numSamples) const = 0;
+        virtual void modify(std::vector<float>& samples) const = 0;
     };
 }

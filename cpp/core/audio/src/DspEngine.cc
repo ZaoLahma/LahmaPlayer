@@ -23,7 +23,7 @@ namespace LahmaPlayer::DspEngine
 
         for (uint32_t i = 0; i < m_signalModifiers.size(); i++)
         {
-            m_signalModifiers[i]->modify(samples, inNeeded[i]);
+            m_signalModifiers[i]->modify(samples);
         }
     }
 
