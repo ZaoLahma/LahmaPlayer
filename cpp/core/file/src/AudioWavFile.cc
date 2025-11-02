@@ -11,8 +11,12 @@ namespace AudioFile
 
     AudioWavFile::AudioFormat AudioWavFile::getAudioFormat()
     {
-        m_file.read(reinterpret_cast<char*>(&m_header), sizeof(m_header));
-        
+        if (!m_initialized)
+        {
+            m_file.read(reinterpret_cast<char*>(&m_header), sizeof(m_header));
+            m_initialized = true;
+        }
+
         AudioFormat format;
         format.numChannels = m_header.numChannels;
         format.sampleRate = m_header.sampleRate;
@@ -59,6 +63,13 @@ namespace AudioFile
         }
 
         m_hasMore = !m_file.eof();
+    }
+
+    void AudioWavFile::seek(uint32_t numSamples, AudioSource::SeekDirection direction)
+    {
+        int32_t byteOffset = numSamples * (m_header.bitsPerSample / 8) * m_header.numChannels * (direction == AudioSource::SeekDirection::Forward ? 1 : -1);
+        
+        m_file.seekg(byteOffset, std::ios::cur);
     }
 }
 }

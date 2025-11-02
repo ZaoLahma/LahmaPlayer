@@ -18,10 +18,17 @@ namespace LahmaPlayer::AudioSource
             int bitsPerSample;
         };
 
+        enum class SeekDirection
+        {
+            Forward,
+            Backward
+        };
+
         virtual ~AudioSource() {}
 
         virtual AudioFormat getAudioFormat() = 0;
         virtual bool hasMore() const = 0;
         virtual void read(std::vector<float>& samples, uint32_t numSamples) = 0;
+        virtual void seek(uint32_t numSamples, SeekDirection direction) = 0;
     };
 }

@@ -16,9 +16,10 @@ namespace LahmaPlayer::DspEngine
         DspEngine(std::shared_ptr<AudioSource> audioSource) : m_audioSource(audioSource) {}
         ~DspEngine();
 
-        void read(std::vector<float>& samples, uint32_t numSamples) override;
-        bool hasMore() const override;
         AudioFormat getAudioFormat() override;
+        bool hasMore() const override;
+        void read(std::vector<float>& samples, uint32_t numSamples) override;
+        void seek(uint32_t numSamples, AudioSource::SeekDirection direction) override;
 
         void registerSignalModifier(std::shared_ptr<SignalModifier::SignalModifier> signalModifier);
 

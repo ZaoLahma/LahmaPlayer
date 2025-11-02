@@ -15,6 +15,7 @@ namespace LahmaPlayer::AudioFile
         virtual AudioFormat getAudioFormat() = 0;
         virtual bool hasMore() const = 0;
         virtual void read(std::vector<float>& samples, uint32_t numSamples) = 0;
+        virtual void seek(uint32_t numSamples, AudioSource::SeekDirection direction) = 0;
 
     protected:
         std::fstream m_file;

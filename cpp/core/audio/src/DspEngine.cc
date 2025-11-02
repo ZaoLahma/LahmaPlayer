@@ -6,6 +6,16 @@ namespace LahmaPlayer::DspEngine
 {
     DspEngine::~DspEngine() {}
 
+    AudioSource::AudioSource::AudioFormat DspEngine::getAudioFormat()
+    {
+        return m_audioSource->getAudioFormat();
+    }
+
+    bool DspEngine::hasMore() const
+    {
+        return m_audioSource->hasMore(); 
+    }
+
     void DspEngine::read(std::vector<float>& samples, uint32_t numSamples) 
     {
         std::vector<size_t> inNeeded(m_signalModifiers.size() + 1);
@@ -27,14 +37,9 @@ namespace LahmaPlayer::DspEngine
         }
     }
 
-    bool DspEngine::hasMore() const
+    void DspEngine::seek(uint32_t numSamples, AudioSource::SeekDirection direction)
     {
-        return m_audioSource->hasMore(); 
-    }
-
-    AudioSource::AudioSource::AudioFormat DspEngine::getAudioFormat()
-    {
-        return m_audioSource->getAudioFormat();
+        m_audioSource->seek(numSamples, direction);
     }
 
     void DspEngine::registerSignalModifier(std::shared_ptr<SignalModifier::SignalModifier> signalModifier)

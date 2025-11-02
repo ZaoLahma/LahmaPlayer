@@ -14,6 +14,7 @@ namespace LahmaPlayer::AudioFile
         AudioFormat getAudioFormat() override;
         bool hasMore() const override;
         void read(std::vector<float>& samples, uint32_t numSamples) override;
+        void seek(uint32_t numSamples, AudioSource::SeekDirection direction) override;
 
     private:
         struct WavHeader
@@ -33,6 +34,7 @@ namespace LahmaPlayer::AudioFile
             uint32_t dataSize;     // Size of audio data
         };
 
+        bool m_initialized = false;
         WavHeader m_header;
         bool m_hasMore = true;
     };

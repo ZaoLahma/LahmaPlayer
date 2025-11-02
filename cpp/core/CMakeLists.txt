@@ -1,7 +1,9 @@
 # cpp/core/CMakeLists.txt
 
 add_library(lahmaplayer_core STATIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/file/src/AudioMp3File.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/file/src/AudioWavFile.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/audio/src/AudioSourceFactory.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/audio/src/AudioStream.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/audio/src/DspEngine.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/audio/src/SignalGainModifier.cc
@@ -21,4 +23,4 @@ target_include_directories(lahmaplayer_core
 )
 
 find_library(PORTAUDIO_LIB portaudio)
-target_link_libraries(lahmaplayer_core ${PORTAUDIO_LIB})
+target_link_libraries(lahmaplayer_core PUBLIC ${PORTAUDIO_LIB} external_headers)
