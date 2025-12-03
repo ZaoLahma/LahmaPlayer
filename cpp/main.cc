@@ -1,4 +1,4 @@
-/*#include "AudioStream.h"
+#include "AudioStream.h"
 #include "AudioWavFile.h"
 #include "DspEngine.h"
 #include "SignalGainModifier.h"
@@ -41,39 +41,4 @@ int main(int argc, char *argv[])
     stream.waitUntilFinished();
 
     return 0;
-}*/
-
-
-#define MINIMP3_IMPLEMENTATION
-#define MINIMP3_FLOAT_OUTPUT
-#include "minimp3.h"
-
-#include <fstream>
-#include <iostream>
-#include <vector>
-
-int main() {
-    mp3dec_t dec;
-    mp3dec_frame_info_t info;
-    mp3dec_init(&dec);
-
-    std::ifstream f("test.mp3", std::ios::binary);
-    std::vector<uint8_t> buf(4096);
-    std::vector<float> pcm(1152 * 2);
-
-    while (f) {
-        f.read(reinterpret_cast<char*>(buf.data()), buf.size());
-        int bytes = static_cast<int>(f.gcount());
-        if (!bytes) break;
-
-        int samples = mp3dec_decode_frame(&dec, buf.data(), bytes, pcm.data(), &info);
-
-        if (samples > 0) {
-            std::cout << "Decoded " << samples << " samples @ " 
-                      << info.hz << " Hz, " << info.channels << " ch\n";
-            std::cout << "First few samples: "
-                      << pcm[0] << ", " << pcm[1] << ", " << pcm[2] << "\n";
-            break;
-        }
-    }
 }

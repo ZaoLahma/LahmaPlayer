@@ -1,6 +1,7 @@
 * More audio format support
-    - MP3 support
+    - MP3 support - DONE!
         - https://github.com/lieff/minimp3
+    - FLAC?
 
 * GUI
     - FTXUI ?? Terminal anyway

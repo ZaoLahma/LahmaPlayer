@@ -6,23 +6,27 @@ namespace LahmaPlayer::SignalModifier
 {
     void SignalSampleWidthModifier::setSampleBits(int bits)
     {
-        m_sampleBits = std::clamp(bits, 1, 16); 
+        m_sampleBits = std::clamp(bits, 1, 24); 
     }
 
     void SignalSampleWidthModifier::modify(std::vector<float>& samples) const
     {
-        float levels = (1 << m_sampleBits);  // 2^bits levels
-        
-        for (size_t i = 0; i < samples.size(); i++)
+        // Number of integer steps for signed audio
+        const float maxInt = float((1 << (m_sampleBits - 1)) - 1);
+
+        for (float& s : samples)
         {
-            // 1. Scale to integer range
-            float scaled = samples[i] * levels;
-            
-            // 2. Quantize (round to nearest level)
-            float quantized = round(scaled);
-            
-            // 3. Scale back to [-1, 1]
-            samples[i] = quantized / levels;
+            // Clamp input
+            float x = std::clamp(s, -1.0f, 1.0f);
+
+            // Scale to integer range
+            float scaled = x * maxInt;
+
+            // Quantize
+            float quantized = std::round(scaled);
+
+            // Scale back to float
+            s = quantized / maxInt;
         }
     }
 }

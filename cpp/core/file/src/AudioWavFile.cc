@@ -69,6 +69,12 @@ namespace AudioFile
     {
         int32_t byteOffset = numSamples * (m_header.bitsPerSample / 8) * m_header.numChannels * (direction == AudioSource::SeekDirection::Forward ? 1 : -1);
         
+        if (byteOffset < 0)
+        {
+            // TODO: Handle me. Prevent seek before start of autio data
+            byteOffset = 0;
+        }
+
         m_file.seekg(byteOffset, std::ios::cur);
     }
 }

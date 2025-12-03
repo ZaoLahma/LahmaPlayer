@@ -1,10 +1,10 @@
 #include "AudioMp3File.h"
 
-#define MINIMP3_FLOAT_OUTPUT
 #define MINIMP3_IMPLEMENTATION
-#include "minimp3.h"
+#include "minimp3_ex.h"
 #include <algorithm>
 #include <cstring>
+#include <iostream>
 
 constexpr int MAX_MP3_SAMPLES_PER_FRAME = 1152 * 2;
 
@@ -14,41 +14,55 @@ namespace AudioFile
 {
     AudioMp3File::AudioMp3File(const std::string& fileName) : AudioFile(fileName)
     {
-        mp3dec_init(&m_decoder);
+        // Load file into memory because that's apparently how minimp3_ex wants it
+        // And hey, it's not like MP3 files are that big usually
+        // (The embedded developer inside of me is crying a bit right now though)
+        m_file.seekg(0, std::ios::end);
+        size_t fileSize = m_file.tellg();
+        m_file.seekg(0);
+
+        m_mp3Data.resize(fileSize);
+        m_file.read(reinterpret_cast<char*>(m_mp3Data.data()), fileSize);
+
+        // Open decoder on memory buffer
+        if (mp3dec_ex_open_buf(&m_decoder, m_mp3Data.data(), fileSize, MP3D_SEEK_TO_SAMPLE) != 0)
+        {
+            throw std::runtime_error("Failed to decode MP3 buffer");
+        }
     }
 
     AudioMp3File::~AudioMp3File() {}
 
     AudioMp3File::AudioFormat AudioMp3File::getAudioFormat()
     {
-        if (!m_initialized)
-        {
-            uint8_t buffer[4096];
-            AudioMp3File::skipID3Header(m_file);
-            m_file.read(reinterpret_cast<char*>(buffer), sizeof(buffer));
-            int bytesRead = static_cast<int>(m_file.gcount());
-            int samplesDecoded = mp3dec_decode_frame(&m_decoder, buffer, bytesRead, nullptr, &m_frameInfo);
-            m_initialized = true;
-            m_file.clear();
-            m_file.seekg(0, std::ios::beg);
-            AudioMp3File::skipID3Header(m_file);
-        }
-
         AudioFormat format;
-        format.numChannels = m_frameInfo.channels;
-        format.sampleRate = m_frameInfo.hz;
-        format.bitsPerSample = 16; // minimp3 outputs 16-bit samples
+        format.numChannels = m_decoder.info.channels;
+        format.sampleRate = m_decoder.info.hz;
+        format.bitsPerSample = 32;
 
         return format;
     }
 
     bool AudioMp3File::hasMore() const
     {
-        return !m_file.eof();
+        return m_hasMore;
     }
 
     void AudioMp3File::read(std::vector<float>& samples, uint32_t numSamples)
     {
+        samples.resize(numSamples);
+
+        size_t samplesRead = mp3dec_ex_read(&m_decoder, samples.data(), numSamples);
+
+        if (0 == samplesRead)
+        {
+            m_hasMore = false;
+        }
+
+        if (samplesRead < numSamples)
+        {
+            std::fill(samples.begin() + samplesRead, samples.end(), 0.0f);
+        }
     }
 
     void AudioMp3File::seek(uint32_t numSamples, AudioSource::SeekDirection direction)

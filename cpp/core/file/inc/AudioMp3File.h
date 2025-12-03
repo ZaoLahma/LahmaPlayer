@@ -2,7 +2,7 @@
 
 #include "AudioFile.h"
 #define MINIMP3_FLOAT_OUTPUT
-#include "minimp3.h"
+#include "minimp3_ex.h"
 
 namespace LahmaPlayer::AudioFile
 {
@@ -20,9 +20,10 @@ namespace LahmaPlayer::AudioFile
         static size_t skipID3Header(std::fstream& file);
 
     private:
-        mp3dec_t m_decoder;
+        std::vector<uint8_t> m_mp3Data;
+        mp3dec_ex_t m_decoder;
         mp3dec_frame_info_t m_frameInfo;
-        bool m_initialized = false;
         uint32_t m_currSampleNumber = 0;
+        bool m_hasMore = true;
     };
 }
