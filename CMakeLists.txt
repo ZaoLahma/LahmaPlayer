@@ -1,28 +1,27 @@
 cmake_minimum_required(VERSION 3.10)
-
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
 project(LahmaPlayer)
 
-# C++ standard
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Debug stuff
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address -fno-omit-frame-pointer")
-set(CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fsanitize=address")
-
-# Add subdirectories (external should come before any targets that use it)
+# Add the external dependencies directory
 add_subdirectory(cpp/external)
+
+# Add the core audio library
 add_subdirectory(cpp/core)
-# add_subdirectory(cpp/frontend)
 
-# Define the main executable
-add_executable(${PROJECT_NAME} cpp/main.cc)
+# Add the GUI library
+add_subdirectory(cpp/gui)
 
-# Link dependencies
-target_link_libraries(${PROJECT_NAME}
+# Create the main executable
+add_executable(${PROJECT_NAME} 
+    cpp/main.cc
+)
+
+# Link all required libraries - using the proper target name from FTXUI integration
+target_link_libraries(${PROJECT_NAME} 
     PRIVATE
-        lahmaplayer_core
-        external_headers
+    lahmaplayer_core
+    Gui
+    ftxui_headers
 )
