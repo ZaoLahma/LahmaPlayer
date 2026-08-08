@@ -40,6 +40,7 @@ namespace LahmaPlayer::AudioStream
         }
 
         m_stream = nullptr;
+        m_playing = false;
     }
     
     void AudioStream::waitUntilFinished()

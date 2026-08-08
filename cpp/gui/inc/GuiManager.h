@@ -11,6 +11,8 @@
 #include <thread>
 #include <atomic>
 #include <string>
+#include <vector>
+#include <filesystem>
 
 namespace LahmaPlayer::Gui
 {
@@ -65,7 +67,14 @@ namespace LahmaPlayer::Gui
         std::atomic<bool> m_isPlaying;
         std::atomic<double> m_progress;
         
+        // File picker state
+        std::vector<std::string> m_audioFiles;
+        int m_selectedFileIndex;
+        
         // UI rendering
         ftxui::Component createMainComponent();
+        ftxui::Component createFilePickerComponent();
+        void updateAudioFileList();
+        bool isAudioFile(const std::string& filename);
     };
 }
