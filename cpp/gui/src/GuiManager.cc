@@ -118,18 +118,10 @@ namespace LahmaPlayer::Gui
 
     bool GuiManager::isAudioFile(const std::string& filename)
     {
-        // Check file extension
-        std::string lower_filename = filename;
-        std::transform(lower_filename.begin(), lower_filename.end(), lower_filename.begin(), ::tolower);
-        
-        // Audio file extensions
-        const std::vector<std::string> audio_extensions = {".wav", ".mp3"};
-        
-        return std::any_of(audio_extensions.begin(), audio_extensions.end(), 
-                          [&lower_filename](const std::string& ext) {
-                              return lower_filename.length() >= ext.length() && 
-                                     lower_filename.substr(lower_filename.length() - ext.length()) == ext;
-                          });
+        // Use AudioSourceFactory to determine if file is a supported audio file
+        // This allows us to support any audio format that AudioSourceFactory can handle
+        auto audio_source = LahmaPlayer::AudioSource::AudioSourceFactory::createAudioSource(filename);
+        return audio_source != nullptr;
     }
 
     ftxui::Component GuiManager::createMainComponent()
