@@ -27,10 +27,10 @@ namespace LahmaPlayer::Gui
         m_screen->Loop(m_component);
     }
 
-void GuiManager::stopLoop()
-{
-    m_running = false;
-}
+    void GuiManager::stopLoop()
+    {
+        m_running = false;
+    }
 
     void GuiManager::loadAudioFile()
     {
@@ -140,10 +140,10 @@ void GuiManager::stopLoop()
         auto stop_button = ftxui::Button("Stop", [this] { stopPlayback(); });
         auto refresh_button = ftxui::Button("Refresh Files", [this] { updateAudioFileList(); });
         auto exit_button = ftxui::Button("Exit", [this] {
-        stopLoop();
-        // Force exit by creating an exit event
-        m_screen->Exit();
-    });
+            stopLoop();
+            // Force exit by creating an exit event
+            m_screen->Exit();
+        });
         
         auto main_container = ftxui::Container::Vertical({
             file_picker,
