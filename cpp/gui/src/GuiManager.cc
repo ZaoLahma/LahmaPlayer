@@ -4,27 +4,90 @@
 #include <chrono>
 #include <algorithm>
 #include <filesystem>
+#include <fstream>
 
 namespace LahmaPlayer::Gui
 {
     GuiManager::GuiManager() : m_running(false), m_isPlaying(false), m_progress(0.0), m_selectedFileIndex(0)
     {
         m_screen = std::unique_ptr<ftxui::ScreenInteractive>(new ftxui::ScreenInteractive(ftxui::ScreenInteractive::Fullscreen()));
-        m_component = createMainComponent();
+        m_logFile.open("gui_manager.log", std::ofstream::out | std::ofstream::app);
+        logToFile("GuiManager initialized");
         updateAudioFileList();
     }
 
     GuiManager::~GuiManager()
     {
         stopLoop();
+        if (m_logFile.is_open()) {
+            m_logFile.close();
+        }
     }
 
     void GuiManager::startLoop()
     {
         m_running = true;
         
-        // Start the FTXUI screen with the main component
-        m_screen->Loop(m_component);
+        auto file_picker = createFilePickerComponent();
+        
+        // Create a lambda to handle play/pause toggle
+        auto play_button = ftxui::Button("Play", [this] { 
+            logToFile("Play/Pause button clicked");
+            // Make sure we have a valid file selected before calling loadAudioFile
+            if (m_audioFiles.empty()) {
+                logToFile("No audio files found to play");
+                return;
+            }
+            // If the selected index is out of bounds, reset to first file
+            if (m_selectedFileIndex < 0 || m_selectedFileIndex >= static_cast<int>(m_audioFiles.size())) {
+                m_selectedFileIndex = 0;
+            }
+            
+            // Toggle play/pause
+            if (m_isPlaying) {
+                stopPlayback();
+            } else {
+                // If we don't have an audio source loaded, load it first
+                if (!m_audioSource) {
+                    loadAudioFile();
+                }
+                startPlayback();
+            }
+        });
+        
+        auto stop_button = ftxui::Button("Stop", [this] { 
+            stopPlayback();
+            m_audioSource.reset();
+        });
+        auto refresh_button = ftxui::Button("Refresh Files", [this] { 
+            updateAudioFileList(); 
+        });
+        auto exit_button = ftxui::Button("Exit", [this] {
+            stopLoop();
+            // Force exit by creating an exit event
+            m_screen->Exit();
+        });
+        
+        // Create separate sections for file picker and controls
+        auto file_picker_section = ftxui::Container::Vertical({
+            file_picker
+        });
+        
+        auto controls_section = ftxui::Container::Vertical({
+            play_button,
+            stop_button,
+            refresh_button,
+            exit_button
+        });
+        
+        // Create a horizontal layout with file picker on the left and controls on the right
+        auto main_container = ftxui::Container::Horizontal({
+            file_picker_section | ftxui::flex_grow,
+            controls_section | ftxui::flex_grow
+        });
+        
+        // Set the root component
+        m_screen->Loop(main_container);
     }
 
     void GuiManager::stopLoop()
@@ -34,6 +97,10 @@ namespace LahmaPlayer::Gui
 
     void GuiManager::loadAudioFile()
     {
+        logToFile("loadAudioFile called");
+        logToFile("Selected file index: " + std::to_string(m_selectedFileIndex));
+        logToFile("Audio files count: " + std::to_string(m_audioFiles.size()));
+        
         // Stop any current playback
         stopPlayback();
         
@@ -44,6 +111,12 @@ namespace LahmaPlayer::Gui
         if (m_selectedFileIndex >= 0 && m_selectedFileIndex < static_cast<int>(m_audioFiles.size()))
         {
             m_fileName = m_audioFiles[m_selectedFileIndex];
+            logToFile("Selected file: " + m_fileName);
+        }
+        else
+        {
+            logToFile("No valid file selected");
+            return;
         }
         
         // Create new audio source
@@ -51,19 +124,23 @@ namespace LahmaPlayer::Gui
         if (!m_audioSource)
         {
             std::cout << "Failed to create audio source for file: " << m_fileName << std::endl;
+            logToFile("Failed to create audio source for file: " + m_fileName);
             return;
         }
         
         // Create DSP engine and audio stream
         m_dspEngine = std::make_shared<LahmaPlayer::DspEngine::DspEngine>(m_audioSource);
         m_audioStream = std::make_shared<LahmaPlayer::AudioStream::AudioStream>();
+        logToFile("Audio file loaded successfully: " + m_fileName);
     }
 
     void GuiManager::startPlayback()
     {
+        logToFile("startPlayback called");
         if (!m_audioStream)
         {
             std::cout << "No audio stream available" << std::endl;
+            logToFile("No audio stream available");
             return;
         }
         
@@ -75,6 +152,7 @@ namespace LahmaPlayer::Gui
         
         // Start the audio stream
         m_audioStream->start(m_audioSource);
+        logToFile("Playback started for file: " + m_fileName);
     }
 
     void GuiManager::stopPlayback()
@@ -116,37 +194,23 @@ namespace LahmaPlayer::Gui
         m_selectedFileIndex = 0;
     }
 
-    bool GuiManager::isAudioFile(const std::string& filename)
+    void GuiManager::logToFile(const std::string& message)
     {
-        // Use AudioSourceFactory to determine if file is a supported audio file
-        // This allows us to support any audio format that AudioSourceFactory can handle
-        auto audio_source = LahmaPlayer::AudioSource::AudioSourceFactory::createAudioSource(filename);
-        return audio_source != nullptr;
+        if (m_logFile.is_open()) {
+            auto now = std::chrono::system_clock::now();
+            auto time_t = std::chrono::system_clock::to_time_t(now);
+            m_logFile << "[" << std::ctime(&time_t) << "] " << message << std::endl;
+            m_logFile.flush(); // Ensure immediate writing to file
+        }
     }
 
-    ftxui::Component GuiManager::createMainComponent()
+    bool GuiManager::isAudioFile(const std::string& filename)
     {
-        auto file_picker = createFilePickerComponent();
-        auto load_button = ftxui::Button("Load", [this] { loadAudioFile(); });
-        auto play_button = ftxui::Button("Play", [this] { startPlayback(); });
-        auto stop_button = ftxui::Button("Stop", [this] { stopPlayback(); });
-        auto refresh_button = ftxui::Button("Refresh Files", [this] { updateAudioFileList(); });
-        auto exit_button = ftxui::Button("Exit", [this] {
-            stopLoop();
-            // Force exit by creating an exit event
-            m_screen->Exit();
-        });
+        // Use AudioSourceFactory to determine if the file is a supported audio file
+        auto audioSource = LahmaPlayer::AudioSource::AudioSourceFactory::createAudioSource(filename);
         
-        auto main_container = ftxui::Container::Vertical({
-            file_picker,
-            load_button,
-            play_button,
-            stop_button,
-            refresh_button,
-            exit_button
-        });
-        
-        return main_container;
+        // Return true if we successfully created an audio source (not nullptr)
+        return audioSource != nullptr;
     }
 
     ftxui::Component GuiManager::createFilePickerComponent()
@@ -156,15 +220,10 @@ namespace LahmaPlayer::Gui
         
         // Create a renderer for the menu that shows selected file
         auto renderer = ftxui::Renderer(menu, [this, menu] {
-            auto selected_file = (m_selectedFileIndex >= 0 && m_selectedFileIndex < static_cast<int>(m_audioFiles.size()))
-                                ? m_audioFiles[m_selectedFileIndex]
-                                : "No file selected";
-            
             return ftxui::vbox({
                 ftxui::text("Select audio file:") | ftxui::bold,
                 ftxui::separator(),
-                menu->Render() | ftxui::frame,
-                ftxui::text("Selected: " + selected_file)
+                menu->Render() | ftxui::frame
             });
         });
         
