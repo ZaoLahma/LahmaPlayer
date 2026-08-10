@@ -8,11 +8,19 @@
 
 namespace LahmaPlayer::Gui
 {
-    GuiManager::GuiManager() : m_running(false), m_isPlaying(false), m_progress(0.0), m_selectedFileIndex(0)
+    GuiManager::GuiManager() : m_isPlaying(false), m_hasAudioFileLoaded(false), m_progress(0.0)
     {
         m_screen = std::unique_ptr<ftxui::ScreenInteractive>(new ftxui::ScreenInteractive(ftxui::ScreenInteractive::Fullscreen()));
         m_logFile.open("gui_manager.log", std::ofstream::out | std::ofstream::app);
         logToFile("GuiManager initialized");
+        
+        // Initialize audio manager
+        m_audioManager = std::make_unique<AudioManager>();
+        
+        // Initialize components
+        m_filePicker = std::make_unique<FilePickerComponent>();
+        m_controls = std::make_unique<ControlsComponent>();
+        
         updateAudioFileList();
     }
 
@@ -26,47 +34,45 @@ namespace LahmaPlayer::Gui
 
     void GuiManager::startLoop()
     {
-        m_running = true;
-        
-        auto file_picker = createFilePickerComponent();
-        
-        // Create a lambda to handle play/pause toggle
-        auto play_button = ftxui::Button("Play", [this] { 
-            logToFile("Play/Pause button clicked");
-            // Make sure we have a valid file selected before calling loadAudioFile
-            if (m_audioFiles.empty()) {
-                logToFile("No audio files found to play");
-                return;
-            }
-            // If the selected index is out of bounds, reset to first file
-            if (m_selectedFileIndex < 0 || m_selectedFileIndex >= static_cast<int>(m_audioFiles.size())) {
-                m_selectedFileIndex = 0;
-            }
-            
-            // Toggle play/pause
+        // Set up callbacks for controls component
+        m_controls->setPlayPauseCallback([this]() {
             if (m_isPlaying) {
                 stopPlayback();
             } else {
-                // If we don't have an audio source loaded, load it first
-                if (!m_audioSource) {
+                if (!m_hasAudioFileLoaded)
+                {
                     loadAudioFile();
                 }
                 startPlayback();
             }
         });
         
-        auto stop_button = ftxui::Button("Stop", [this] { 
+        m_controls->setStopCallback([this]() {
             stopPlayback();
-            m_audioSource.reset();
+            m_hasAudioFileLoaded = false;
         });
-        auto refresh_button = ftxui::Button("Refresh Files", [this] { 
-            updateAudioFileList(); 
-        });
-        auto exit_button = ftxui::Button("Exit", [this] {
+        
+        m_controls->setExitCallback([this]() {
             stopLoop();
-            // Force exit by creating an exit event
-            m_screen->Exit();
         });
+        
+        // Set up callbacks for controls component (for file selection)
+        m_controls->setFileSelectedCallback([this](const std::string& fileName) {
+            logToFile("File selected in callback: " + fileName);
+            m_audioManager->loadAudioFile(fileName);
+        });
+        
+        m_filePicker->setRefreshCallback([this]() {
+            updateAudioFileList();
+        });
+        
+        m_filePicker->setExitCallback([this]() {
+            stopLoop();
+        });
+        
+        // Get the components
+        auto file_picker = m_filePicker->createComponent();
+        auto controls = m_controls->createComponent();
         
         // Create separate sections for file picker and controls
         auto file_picker_section = ftxui::Container::Vertical({
@@ -74,10 +80,7 @@ namespace LahmaPlayer::Gui
         });
         
         auto controls_section = ftxui::Container::Vertical({
-            play_button,
-            stop_button,
-            refresh_button,
-            exit_button
+            controls
         });
         
         // Create a horizontal layout with file picker on the left and controls on the right
@@ -86,58 +89,59 @@ namespace LahmaPlayer::Gui
             controls_section | ftxui::flex_grow
         });
         
-        // Set the root component
-        m_screen->Loop(main_container);
+        // Set the main component for the screen
+        m_component = main_container;
+        m_screen->Loop(m_component);
     }
 
     void GuiManager::stopLoop()
     {
-        m_running = false;
+        m_screen->Exit();
     }
 
     void GuiManager::loadAudioFile()
     {
         logToFile("loadAudioFile called");
-        logToFile("Selected file index: " + std::to_string(m_selectedFileIndex));
-        logToFile("Audio files count: " + std::to_string(m_audioFiles.size()));
+        logToFile("Selected file index: " + std::to_string(m_filePicker->getSelectedFileIndex()));
+        logToFile("Audio files count: " + std::to_string(m_filePicker->getAudioFiles().size()));
         
         // Stop any current playback
         stopPlayback();
         
-        // Destroy the current audio source
-        m_audioSource.reset();
-        
         // Check if a file is selected
-        if (m_selectedFileIndex >= 0 && m_selectedFileIndex < static_cast<int>(m_audioFiles.size()))
+        int selected_index = m_filePicker->getSelectedFileIndex();
+        if (selected_index >= 0 && selected_index < static_cast<int>(m_filePicker->getAudioFiles().size()))
         {
-            m_fileName = m_audioFiles[m_selectedFileIndex];
-            logToFile("Selected file: " + m_fileName);
+            std::string fileName = m_filePicker->getAudioFiles()[selected_index];
+            logToFile("Selected file: " + fileName);
+            
+            // Load audio file through audio manager
+            bool success = m_audioManager->loadAudioFile(fileName);
+            
+            if (!success)
+            {
+                logToFile("Failed to load audio file: " + fileName);
+                return;
+            }
+            
+            // Update controls with new audio source
+            m_controls->setAudioSource(m_audioManager->getAudioSource());
+            m_controls->setAudioStream(m_audioManager->getAudioStream());
+            m_controls->setFileName(fileName);
+            m_hasAudioFileLoaded = true;
+            
+            logToFile("Audio file loaded successfully: " + fileName);
         }
         else
         {
             logToFile("No valid file selected");
-            return;
         }
-        
-        // Create new audio source
-        m_audioSource = LahmaPlayer::AudioSource::AudioSourceFactory::createAudioSource(m_fileName);
-        if (!m_audioSource)
-        {
-            std::cout << "Failed to create audio source for file: " << m_fileName << std::endl;
-            logToFile("Failed to create audio source for file: " + m_fileName);
-            return;
-        }
-        
-        // Create DSP engine and audio stream
-        m_dspEngine = std::make_shared<LahmaPlayer::DspEngine::DspEngine>(m_audioSource);
-        m_audioStream = std::make_shared<LahmaPlayer::AudioStream::AudioStream>();
-        logToFile("Audio file loaded successfully: " + m_fileName);
     }
 
     void GuiManager::startPlayback()
     {
         logToFile("startPlayback called");
-        if (!m_audioStream)
+        if (!m_audioManager->getAudioStream())
         {
             std::cout << "No audio stream available" << std::endl;
             logToFile("No audio stream available");
@@ -150,9 +154,12 @@ namespace LahmaPlayer::Gui
         m_isPlaying = true;
         m_progress = 0.0;
         
+        // Update controls state
+        m_controls->setIsPlaying(true);
+        
         // Start the audio stream
-        m_audioStream->start(m_audioSource);
-        logToFile("Playback started for file: " + m_fileName);
+        m_audioManager->startPlayback();
+        logToFile("Playback started");
     }
 
     void GuiManager::stopPlayback()
@@ -160,38 +167,16 @@ namespace LahmaPlayer::Gui
         m_isPlaying = false;
         m_progress = 0.0;
         
+        // Update controls state
+        m_controls->setIsPlaying(false);
+        
         // Stop the audio stream if it's active
-        if (m_audioStream)
-        {
-            m_audioStream->stop();
-            m_audioStream->waitUntilFinished();
-        }
+        m_audioManager->stopPlayback();
     }
 
     void GuiManager::updateAudioFileList()
     {
-        m_audioFiles.clear();
-        
-        try {
-            // Get current directory
-            auto current_path = std::filesystem::current_path();
-            
-            // Iterate through directory entries
-            for (const auto& entry : std::filesystem::directory_iterator(current_path))
-            {
-                if (entry.is_regular_file() && isAudioFile(entry.path().filename().string()))
-                {
-                    m_audioFiles.push_back(entry.path().filename().string());
-                }
-            }
-            
-            // Sort audio files alphabetically
-            std::sort(m_audioFiles.begin(), m_audioFiles.end());
-        } catch (const std::filesystem::filesystem_error& ex) {
-            std::cout << "Error reading directory: " << ex.what() << std::endl;
-        }
-        
-        m_selectedFileIndex = 0;
+        m_filePicker->updateAudioFileList();
     }
 
     void GuiManager::logToFile(const std::string& message)
@@ -211,22 +196,5 @@ namespace LahmaPlayer::Gui
         
         // Return true if we successfully created an audio source (not nullptr)
         return audioSource != nullptr;
-    }
-
-    ftxui::Component GuiManager::createFilePickerComponent()
-    {
-        // Create a menu for audio files
-        auto menu = ftxui::Menu(&m_audioFiles, &m_selectedFileIndex);
-        
-        // Create a renderer for the menu that shows selected file
-        auto renderer = ftxui::Renderer(menu, [this, menu] {
-            return ftxui::vbox({
-                ftxui::text("Select audio file:") | ftxui::bold,
-                ftxui::separator(),
-                menu->Render() | ftxui::frame
-            });
-        });
-        
-        return renderer;
     }
 }

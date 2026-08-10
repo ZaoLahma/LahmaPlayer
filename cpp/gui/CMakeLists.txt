@@ -3,6 +3,9 @@ project(Gui)
 
 add_library(Gui
     src/GuiManager.cc
+    src/FilePickerComponent.cc
+    src/ControlsComponent.cc
+    src/AudioManager.cc
 )
 
 target_include_directories(Gui
