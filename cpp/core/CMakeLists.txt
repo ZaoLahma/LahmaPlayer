@@ -8,6 +8,7 @@ add_library(lahmaplayer_core STATIC
     ${CMAKE_CURRENT_SOURCE_DIR}/audio/src/DspEngine.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/audio/src/SignalGainModifier.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/audio/src/SignalSampleWidthModifier.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AudioManager.cc
     # Add other core source files here
 )
 
@@ -15,11 +16,8 @@ target_include_directories(lahmaplayer_core
   PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/file/inc
     ${CMAKE_CURRENT_LIST_DIR}/audio/inc
-)
-
-target_include_directories(lahmaplayer_core
-  PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_LIST_DIR}/src
+    ${CMAKE_CURRENT_LIST_DIR}/inc
 )
 
 find_library(PORTAUDIO_LIB portaudio)

@@ -13,6 +13,9 @@ add_subdirectory(cpp/core)
 # Add the GUI library
 add_subdirectory(cpp/gui)
 
+# Add the headless module
+add_subdirectory(cpp/headless)
+
 # Create the main executable
 add_executable(${PROJECT_NAME} 
     cpp/main.cc
@@ -23,5 +26,6 @@ target_link_libraries(${PROJECT_NAME}
     PRIVATE
     lahmaplayer_core
     Gui
+    headless
     ftxui_headers
 )

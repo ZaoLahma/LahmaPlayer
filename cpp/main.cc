@@ -1,6 +1,7 @@
 #include "AudioManager.h"
 #include "GuiManager.h"
 #include "AudioSourceFactory.h"
+#include "HeadlessAudioManager.h"
 
 #include <iostream>
 #include <string>
@@ -26,32 +27,25 @@ int main(int argc, char *argv[])
         std::cout << "Headless mode enabled" << std::endl;
         std::cout.flush();
         
-        // Use AudioManager directly
-        LahmaPlayer::Gui::AudioManager audioManager;
+        // Use HeadlessAudioManager - simple interface!
+        LahmaPlayer::Headless::HeadlessAudioManager audioManager;
         
         if (!audioFile.empty()) {
-            std::cout << "Loading file: " << audioFile << std::endl;
+            std::cout << "Playing: " << audioFile << std::endl;
             std::cout.flush();
             
-            bool success = audioManager.loadAudioFile(audioFile);
+            // Simple interface: just play the file!
+            // playFile() handles loading, playing, and waiting for completion
+            bool success = audioManager.playFile(audioFile);
+            
             if (success) {
-                std::cout << "Starting playback..." << std::endl;
-                std::cout.flush();
-                
-                audioManager.startPlayback();
-                
-                std::cout << "Playback started successfully. Press Ctrl+C to stop." << std::endl;
-                std::cout.flush();
-                
-                // Keep running until interrupted
-                while (true) {
-                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-                }
+                std::cout << "Playback completed successfully" << std::endl;
             } else {
-                std::cerr << "Error: Failed to load audio file" << std::endl;
+                std::cerr << "Error: Failed to play audio file" << std::endl;
             }
         } else {
             std::cerr << "No audio file specified" << std::endl;
+            return 1;
         }
         
         return 0;
