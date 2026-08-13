@@ -1,7 +1,6 @@
 #include "AudioManager.h"
 #include "GuiManager.h"
 #include "AudioSourceFactory.h"
-#include "HeadlessAudioManager.h"
 
 #include <iostream>
 #include <string>
@@ -11,7 +10,7 @@
 int main(int argc, char *argv[])
 {
     bool headless = false;
-    std::string audioFile;
+    std::string audioFileOrDir;
 
     // Parse command line arguments
     for (int i = 1; i < argc; ++i) {
@@ -19,33 +18,32 @@ int main(int argc, char *argv[])
         if (arg == "--headless" || arg == "-h") {
             headless = true;
         } else if (headless && arg[0] != '-') {
-            audioFile = arg;
+            audioFileOrDir = arg;
         }
     }
 
     if (headless) {
-        std::cout << "Headless mode enabled" << std::endl;
-        std::cout.flush();
+        LahmaPlayer::Gui::AudioManager audioManager;
         
-        // Use HeadlessAudioManager - simple interface!
-        LahmaPlayer::Headless::HeadlessAudioManager audioManager;
-        
-        if (!audioFile.empty()) {
-            std::cout << "Playing: " << audioFile << std::endl;
+        if (!audioFileOrDir.empty()) {
+            std::cout << "Playing file: " << audioFileOrDir << std::endl;
             std::cout.flush();
             
-            // Simple interface: just play the file!
-            // playFile() handles loading, playing, and waiting for completion
-            bool success = audioManager.playFile(audioFile);
-            
+            bool success = audioManager.loadAudioFile(audioFileOrDir);
             if (success) {
-                std::cout << "Playback completed successfully" << std::endl;
+                audioManager.startPlayback();
+                std::cout << "Playback started successfully. Press Ctrl+C to stop." << std::endl;
+                std::cout.flush();
+                
+                // Keep running until interrupted
+                while (true) {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                }
             } else {
-                std::cerr << "Error: Failed to play audio file" << std::endl;
+                std::cerr << "Error: Failed to load file" << std::endl;
             }
         } else {
             std::cerr << "No audio file specified" << std::endl;
-            return 1;
         }
         
         return 0;

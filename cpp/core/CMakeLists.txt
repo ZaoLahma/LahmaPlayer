@@ -9,6 +9,7 @@ add_library(lahmaplayer_core STATIC
     ${CMAKE_CURRENT_SOURCE_DIR}/audio/src/SignalGainModifier.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/audio/src/SignalSampleWidthModifier.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AudioManager.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Playlist.cc
     # Add other core source files here
 )
 
