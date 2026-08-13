@@ -225,17 +225,19 @@ namespace LahmaPlayer::Gui
     {
         LahmaPlayer::Logger::getInstance().info("playNextTrack called");
         
-        if (!m_playlist || !m_playlist->hasMore()) {
-            LahmaPlayer::Logger::getInstance().warning("No more tracks in playlist");
+        if (!m_playlist) {
+            LahmaPlayer::Logger::getInstance().warning("Playlist not initialized");
             return;
         }
         
-        // Stop current track (waits for natural end)
+        // Stop current track
         m_audioManager->stopPlayback();
         
-        // Advance to next track
-        if (!m_playlist->advanceToNext()) {
-            LahmaPlayer::Logger::getInstance().info("Already at end of playlist");
+        // Advance to next track (Playlist handles circular wrapping internally)
+        if (m_playlist->hasMore()) {
+            m_playlist->advanceToNext();
+        } else {
+            LahmaPlayer::Logger::getInstance().warning("No tracks in playlist");
             return;
         }
         
@@ -256,17 +258,19 @@ namespace LahmaPlayer::Gui
     {
         LahmaPlayer::Logger::getInstance().info("playPreviousTrack called");
         
-        if (!m_playlist || m_playlist->isAtStart()) {
-            LahmaPlayer::Logger::getInstance().warning("Already at start of playlist");
+        if (!m_playlist) {
+            LahmaPlayer::Logger::getInstance().warning("Playlist not initialized");
             return;
         }
         
         // Stop current track
         m_audioManager->stopPlayback();
         
-        // Advance to previous track
-        if (!m_playlist->advanceToPrevious()) {
-            LahmaPlayer::Logger::getInstance().info("Already at start of playlist");
+        // Advance to previous track (Playlist handles circular wrapping internally)
+        if (m_playlist->hasMore()) {
+            m_playlist->advanceToPrevious();
+        } else {
+            LahmaPlayer::Logger::getInstance().warning("No tracks in playlist");
             return;
         }
         

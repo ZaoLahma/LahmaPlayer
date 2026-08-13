@@ -68,12 +68,16 @@ bool Playlist::advanceToNext()
     
     if (m_currentIndex < m_tracks.size()) {
         m_currentIndex++;
-        LahmaPlayer::Logger::getInstance().info("advanceToNext: moved to index " + std::to_string(m_currentIndex));
-    } else {
-        LahmaPlayer::Logger::getInstance().info("advanceToNext: already at end");
+        LahmaPlayer::Logger::getInstance().info("advanceToNext: moved to index " + std::to_string(getCurrentIndex()));
+        
+        // Circular wrapping: if at end, wrap to first
+        if (m_currentIndex >= static_cast<int>(m_tracks.size())) {
+            m_currentIndex = 0;
+            LahmaPlayer::Logger::getInstance().info("advanceToNext: wrapped to first track (index 0)");
+        }
     }
     
-    return m_currentIndex < m_tracks.size();
+    return m_currentIndex < static_cast<int>(m_tracks.size());
 }
 
 bool Playlist::advanceToPrevious()
@@ -82,9 +86,15 @@ bool Playlist::advanceToPrevious()
     
     if (m_currentIndex > 0) {
         m_currentIndex--;
-        LahmaPlayer::Logger::getInstance().info("advanceToPrevious: moved to index " + std::to_string(m_currentIndex));
+        LahmaPlayer::Logger::getInstance().info("advanceToPrevious: moved to index " + std::to_string(getCurrentIndex()));
     } else {
         LahmaPlayer::Logger::getInstance().info("advanceToPrevious: already at start");
+        
+        // Circular wrapping: if at start, wrap to last
+        if (!m_tracks.empty()) {
+            m_currentIndex = static_cast<int>(m_tracks.size()) - 1;
+            LahmaPlayer::Logger::getInstance().info("advanceToPrevious: wrapped to last track (index " + std::to_string(m_currentIndex) + ")");
+        }
     }
     
     return m_currentIndex >= 0;
