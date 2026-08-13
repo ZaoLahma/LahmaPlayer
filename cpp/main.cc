@@ -1,11 +1,12 @@
-#include "AudioManager.h"
-#include "GuiManager.h"
-#include "AudioSourceFactory.h"
-
 #include <iostream>
 #include <string>
 #include <thread>
 #include <chrono>
+
+#include "AudioManager.h"
+#include "GuiManager.h"
+#include "AudioSourceFactory.h"
+#include "Logger.h"
 
 int main(int argc, char *argv[])
 {
@@ -21,6 +22,9 @@ int main(int argc, char *argv[])
             audioFileOrDir = arg;
         }
     }
+
+    // Initialize logger
+    LahmaPlayer::Logger::getInstance().init("", true);  // Headless: terminal output
 
     if (headless) {
         LahmaPlayer::Gui::AudioManager audioManager;

@@ -4,11 +4,9 @@
 #include "AudioStream.h"
 #include "DspEngine.h"
 #include "AudioSourceFactory.h"
+#include "Logger.h"
 #include <memory>
 #include <string>
-#include <fstream>
-#include <chrono>
-#include <thread>
 
 namespace LahmaPlayer::Gui
 {
@@ -58,9 +56,5 @@ namespace LahmaPlayer::Gui
         std::shared_ptr<LahmaPlayer::AudioSource::AudioSource> m_audioSource;
         std::shared_ptr<LahmaPlayer::DspEngine::DspEngine> m_dspEngine;
         std::shared_ptr<LahmaPlayer::AudioStream::AudioStream> m_audioStream;
-        
-        // Logging
-        void logToFile(const std::string& message);
-        std::ofstream m_logFile;
     };
 }

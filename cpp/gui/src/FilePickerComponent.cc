@@ -10,16 +10,11 @@ namespace LahmaPlayer::Gui
 {
     FilePickerComponent::FilePickerComponent() : m_selectedFileIndex(0)
     {
-        m_logFile.open("file_picker_component.log", std::ofstream::out | std::ofstream::app);
-        logToFile("FilePickerComponent initialized");
         updateAudioFileList();
     }
 
     FilePickerComponent::~FilePickerComponent()
     {
-        if (m_logFile.is_open()) {
-            m_logFile.close();
-        }
     }
 
     ftxui::Component FilePickerComponent::createComponent()
@@ -46,7 +41,6 @@ namespace LahmaPlayer::Gui
 
     void FilePickerComponent::updateAudioFileList()
     {
-        logToFile("updateAudioFileList called");
         m_audioFiles.clear();
         
         // Look for audio files in the current directory
@@ -57,7 +51,6 @@ namespace LahmaPlayer::Gui
                 }
             }
         } catch (const std::filesystem::filesystem_error& ex) {
-            logToFile("Filesystem error: " + std::string(ex.what()));
         }
         
         // Sort the audio files alphabetically
@@ -67,8 +60,6 @@ namespace LahmaPlayer::Gui
         if (m_selectedFileIndex >= static_cast<int>(m_audioFiles.size())) {
             m_selectedFileIndex = 0;
         }
-        
-        logToFile("Found " + std::to_string(m_audioFiles.size()) + " audio files");
     }
 
     bool FilePickerComponent::isAudioFile(const std::string& filename)
@@ -78,15 +69,5 @@ namespace LahmaPlayer::Gui
         
         // Return true if we successfully created an audio source (not nullptr)
         return audioSource != nullptr;
-    }
-
-    void FilePickerComponent::logToFile(const std::string& message)
-    {
-        if (m_logFile.is_open()) {
-            auto now = std::chrono::system_clock::now();
-            auto time_t = std::chrono::system_clock::to_time_t(now);
-            m_logFile << "[" << std::ctime(&time_t) << "] " << message << std::endl;
-            m_logFile.flush(); // Ensure immediate writing to file
-        }
     }
 }

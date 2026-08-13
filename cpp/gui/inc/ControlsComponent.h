@@ -122,9 +122,5 @@ namespace LahmaPlayer::Gui
         std::function<void()> m_stopCallback;
         std::function<void()> m_exitCallback;
         std::function<void(const std::string&)> m_fileSelectedCallback;
-        
-        // Logging
-        void logToFile(const std::string& message);
-        std::ofstream m_logFile;
     };
 }

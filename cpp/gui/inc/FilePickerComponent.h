@@ -63,9 +63,5 @@ namespace LahmaPlayer::Gui
         // Callbacks
         std::function<void()> m_refreshCallback;
         std::function<void()> m_exitCallback;
-        
-        // Logging
-        void logToFile(const std::string& message);
-        std::ofstream m_logFile;
     };
 }

@@ -29,3 +29,11 @@ target_link_libraries(${PROJECT_NAME}
     headless
     ftxui_headers
 )
+
+# Include the core include directory for Logger.h
+target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/cpp/core/inc
+    ${PROJECT_SOURCE_DIR}/cpp/core/file/inc
+    ${PROJECT_SOURCE_DIR}/cpp/core/audio/inc
+    ${PROJECT_SOURCE_DIR}/cpp/gui/inc
+    ${PROJECT_SOURCE_DIR}/cpp/headless/inc
+)

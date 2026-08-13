@@ -10,6 +10,7 @@ add_library(lahmaplayer_core STATIC
     ${CMAKE_CURRENT_SOURCE_DIR}/audio/src/SignalSampleWidthModifier.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AudioManager.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Playlist.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Logger.cc
     # Add other core source files here
 )
 
@@ -17,7 +18,6 @@ target_include_directories(lahmaplayer_core
   PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/file/inc
     ${CMAKE_CURRENT_LIST_DIR}/audio/inc
-    ${CMAKE_CURRENT_LIST_DIR}/src
     ${CMAKE_CURRENT_LIST_DIR}/inc
 )
 

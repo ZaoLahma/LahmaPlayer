@@ -8,22 +8,16 @@ namespace LahmaPlayer::Gui
 {
     ControlsComponent::ControlsComponent() : m_isPlaying(false), m_progress(0.0)
     {
-        m_logFile.open("controls_component.log", std::ofstream::out | std::ofstream::app);
-        logToFile("ControlsComponent initialized");
     }
 
     ControlsComponent::~ControlsComponent()
     {
-        if (m_logFile.is_open()) {
-            m_logFile.close();
-        }
     }
 
     ftxui::Component ControlsComponent::createComponent()
     {
         // Create buttons for controls
         auto play_button = ftxui::Button("Play", [this] { 
-            logToFile("Play/Pause button clicked");
 
             // Toggle play/pause using callback
             if (m_playPauseCallback) {
@@ -32,7 +26,6 @@ namespace LahmaPlayer::Gui
         });
         
         auto stop_button = ftxui::Button("Stop", [this] { 
-            logToFile("Stop button clicked");
             // Stop using callback
             if (m_stopCallback) {
                 m_stopCallback();
@@ -46,7 +39,6 @@ namespace LahmaPlayer::Gui
         });
         
         auto exit_button = ftxui::Button("Exit", [this] {
-            logToFile("Exit button clicked");
             // Stop playback and exit using callback
             if (m_stopCallback) {
                 m_stopCallback();
@@ -96,19 +88,8 @@ namespace LahmaPlayer::Gui
 
     void ControlsComponent::loadAudioFile(const std::string& fileName)
     {
-        logToFile("loadAudioFile called for file: " + fileName);
         m_fileName = fileName;
         // Note: The actual audio loading is now handled by AudioManager
         // This method just updates the file name in the controls
-    }
-
-    void ControlsComponent::logToFile(const std::string& message)
-    {
-        if (m_logFile.is_open()) {
-            auto now = std::chrono::system_clock::now();
-            auto time_t = std::chrono::system_clock::to_time_t(now);
-            m_logFile << "[" << std::ctime(&time_t) << "] " << message << std::endl;
-            m_logFile.flush(); // Ensure immediate writing to file
-        }
     }
 }

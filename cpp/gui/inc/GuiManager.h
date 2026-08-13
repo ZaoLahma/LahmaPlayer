@@ -88,9 +88,5 @@ namespace LahmaPlayer::Gui
         ftxui::Component createFilePickerComponent();
         void updateAudioFileList();
         bool isAudioFile(const std::string& filename);
-        
-        // Logging
-        void logToFile(const std::string& message);
-        std::ofstream m_logFile;
     };
 }

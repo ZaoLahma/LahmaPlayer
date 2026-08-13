@@ -1,10 +1,10 @@
 #pragma once
 
 #include "AudioSource.h"
+#include "Logger.h"
 #include <memory>
 #include <vector>
 #include <string>
-#include <fstream>
 
 namespace LahmaPlayer {
 
@@ -89,15 +89,9 @@ public:
      */
     size_t getTrackCount() const { return m_tracks.size(); }
 
-    /**
-     * @brief Log a message to file
-     */
-    void logToFile(const std::string& message);
-
-    private:
-        std::vector<Track> m_tracks;
-        size_t m_currentIndex = std::size_t(-1);
-        std::ofstream m_logFile;
+private:
+    std::vector<Track> m_tracks;
+    size_t m_currentIndex = std::size_t(-1);
 };
 
 } // namespace LahmaPlayer

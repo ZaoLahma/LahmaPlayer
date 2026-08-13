@@ -1,43 +1,29 @@
 #include "Playlist.h"
 #include "AudioSourceFactory.h"
+#include "Logger.h"
 #include <iostream>
 #include <filesystem>
 #include <algorithm>
-#include <fstream>
 
 namespace LahmaPlayer {
 
 Playlist::Playlist()
     : m_currentIndex(std::size_t(-1))
 {
-    m_logFile.open("playlist.log", std::ofstream::out | std::ofstream::app);
-    logToFile("Playlist initialized");
+    LahmaPlayer::Logger::getInstance().info("Playlist initialized");
 }
 
 Playlist::~Playlist()
 {
-    if (m_logFile.is_open()) {
-        m_logFile.close();
-    }
-}
-
-void Playlist::logToFile(const std::string& message)
-{
-    if (m_logFile.is_open()) {
-        auto now = std::chrono::system_clock::now();
-        auto time_t = std::chrono::system_clock::to_time_t(now);
-        m_logFile << "[" << std::ctime(&time_t) << "] Playlist: " << message << std::endl;
-        m_logFile.flush();
-    }
 }
 
 bool Playlist::loadFromDirectory(const std::string& dirPath)
 {
-    logToFile("loadFromDirectory called for: " + dirPath);
+    LahmaPlayer::Logger::getInstance().info("loadFromDirectory called for: " + dirPath);
     
     // Check if path exists and is a directory
     if (!std::filesystem::is_directory(dirPath)) {
-        logToFile("ERROR: Path is not a directory");
+        LahmaPlayer::Logger::getInstance().warning("ERROR: Path is not a directory");
         return false;
     }
 
@@ -56,6 +42,7 @@ bool Playlist::loadFromDirectory(const std::string& dirPath)
         }
     } catch (const std::exception& e) {
         std::cerr << "Error scanning directory: " << e.what() << std::endl;
+        LahmaPlayer::Logger::getInstance().error("Error scanning directory: " + std::string(e.what()));
         return false;
     }
 
@@ -80,13 +67,13 @@ bool Playlist::loadFromDirectory(const std::string& dirPath)
 
 bool Playlist::advanceToNext()
 {
-    logToFile("advanceToNext called, current: " + std::to_string(m_currentIndex));
+    LahmaPlayer::Logger::getInstance().info("advanceToNext called, current: " + std::to_string(m_currentIndex));
     
     if (m_currentIndex < m_tracks.size()) {
         m_currentIndex++;
-        logToFile("advanceToNext: moved to index " + std::to_string(m_currentIndex));
+        LahmaPlayer::Logger::getInstance().info("advanceToNext: moved to index " + std::to_string(m_currentIndex));
     } else {
-        logToFile("advanceToNext: already at end");
+        LahmaPlayer::Logger::getInstance().info("advanceToNext: already at end");
     }
     
     return m_currentIndex < m_tracks.size();
@@ -94,7 +81,7 @@ bool Playlist::advanceToNext()
 
 void Playlist::reset()
 {
-    logToFile("reset called");
+    LahmaPlayer::Logger::getInstance().info("reset called");
     m_currentIndex = 0;
 }
 

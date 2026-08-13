@@ -1,18 +1,18 @@
 #include "GuiManager.h"
+#include "Logger.h"
 #include <iostream>
 #include <thread>
 #include <chrono>
 #include <algorithm>
 #include <filesystem>
-#include <fstream>
 
 namespace LahmaPlayer::Gui
 {
     GuiManager::GuiManager() : m_isPlaying(false), m_hasAudioFileLoaded(false), m_progress(0.0)
     {
         m_screen = std::unique_ptr<ftxui::ScreenInteractive>(new ftxui::ScreenInteractive(ftxui::ScreenInteractive::Fullscreen()));
-        m_logFile.open("gui_manager.log", std::ofstream::out | std::ofstream::app);
-        logToFile("GuiManager initialized");
+        LahmaPlayer::Logger::getInstance().init("gui.log", true);
+        LahmaPlayer::Logger::getInstance().info("GuiManager initialized");
         
         // Initialize audio manager
         m_audioManager = std::make_unique<AudioManager>();
@@ -27,9 +27,6 @@ namespace LahmaPlayer::Gui
     GuiManager::~GuiManager()
     {
         stopLoop();
-        if (m_logFile.is_open()) {
-            m_logFile.close();
-        }
     }
 
     void GuiManager::startLoop()
@@ -58,7 +55,7 @@ namespace LahmaPlayer::Gui
         
         // Set up callbacks for controls component (for file selection)
         m_controls->setFileSelectedCallback([this](const std::string& fileName) {
-            logToFile("File selected in callback: " + fileName);
+            LahmaPlayer::Logger::getInstance().info("File selected in callback: " + fileName);
             m_audioManager->loadAudioFile(fileName);
         });
         
@@ -101,9 +98,9 @@ namespace LahmaPlayer::Gui
 
     void GuiManager::loadAudioFile()
     {
-        logToFile("loadAudioFile called");
-        logToFile("Selected file index: " + std::to_string(m_filePicker->getSelectedFileIndex()));
-        logToFile("Audio files count: " + std::to_string(m_filePicker->getAudioFiles().size()));
+        LahmaPlayer::Logger::getInstance().info("loadAudioFile called");
+        LahmaPlayer::Logger::getInstance().info("Selected file index: " + std::to_string(m_filePicker->getSelectedFileIndex()));
+        LahmaPlayer::Logger::getInstance().info("Audio files count: " + std::to_string(m_filePicker->getAudioFiles().size()));
         
         // Stop any current playback
         stopPlayback();
@@ -113,14 +110,14 @@ namespace LahmaPlayer::Gui
         if (selected_index >= 0 && selected_index < static_cast<int>(m_filePicker->getAudioFiles().size()))
         {
             std::string fileName = m_filePicker->getAudioFiles()[selected_index];
-            logToFile("Selected file: " + fileName);
+            LahmaPlayer::Logger::getInstance().info("Selected file: " + fileName);
             
             // Load audio file through audio manager
             bool success = m_audioManager->loadAudioFile(fileName);
             
             if (!success)
             {
-                logToFile("Failed to load audio file: " + fileName);
+                LahmaPlayer::Logger::getInstance().warning("Failed to load audio file: " + fileName);
                 return;
             }
             
@@ -130,21 +127,21 @@ namespace LahmaPlayer::Gui
             m_controls->setFileName(fileName);
             m_hasAudioFileLoaded = true;
             
-            logToFile("Audio file loaded successfully: " + fileName);
+            LahmaPlayer::Logger::getInstance().info("Audio file loaded successfully: " + fileName);
         }
         else
         {
-            logToFile("No valid file selected");
+            LahmaPlayer::Logger::getInstance().warning("No valid file selected");
         }
     }
 
     void GuiManager::startPlayback()
     {
-        logToFile("startPlayback called");
+        LahmaPlayer::Logger::getInstance().info("startPlayback called");
         if (!m_audioManager->getAudioStream())
         {
             std::cout << "No audio stream available" << std::endl;
-            logToFile("No audio stream available");
+            LahmaPlayer::Logger::getInstance().warning("No audio stream available");
             return;
         }
         
@@ -159,7 +156,7 @@ namespace LahmaPlayer::Gui
         
         // Start the audio stream
         m_audioManager->startPlayback();
-        logToFile("Playback started");
+        LahmaPlayer::Logger::getInstance().info("Playback started");
     }
 
     void GuiManager::stopPlayback()
@@ -177,16 +174,6 @@ namespace LahmaPlayer::Gui
     void GuiManager::updateAudioFileList()
     {
         m_filePicker->updateAudioFileList();
-    }
-
-    void GuiManager::logToFile(const std::string& message)
-    {
-        if (m_logFile.is_open()) {
-            auto now = std::chrono::system_clock::now();
-            auto time_t = std::chrono::system_clock::to_time_t(now);
-            m_logFile << "[" << std::ctime(&time_t) << "] " << message << std::endl;
-            m_logFile.flush(); // Ensure immediate writing to file
-        }
     }
 
     bool GuiManager::isAudioFile(const std::string& filename)
