@@ -22,7 +22,6 @@ public:
     struct Track
     {
         std::string fileName;
-        std::shared_ptr<AudioSource::AudioSource> source;
         size_t currentIndex = 0;  // For seeking within track
     };
 
@@ -46,21 +45,21 @@ public:
     }
 
     /**
-     * @brief Get current track (mutable)
-     * @return Reference to current track
+     * @brief Get current track filename (mutable)
+     * @return Reference to current track's filename
      */
-    Track& currentTrack()
+    const std::string& currentTrackFileName()
     {
-        return m_tracks[m_currentIndex];
+        return m_tracks[m_currentIndex].fileName;
     }
 
     /**
-     * @brief Get current track (const)
-     * @return Const reference to current track
+     * @brief Get current track filename (const)
+     * @return Const reference to current track's filename
      */
-    const Track& currentTrack() const
+    const std::string& currentTrackFileName() const
     {
-        return m_tracks[m_currentIndex];
+        return m_tracks[m_currentIndex].fileName;
     }
 
     /**
@@ -70,44 +69,29 @@ public:
     bool advanceToNext();
 
     /**
+     * @brief Advance to previous track
+     * @return true if advancement was successful, false if at start
+     */
+    bool advanceToPrevious();
+
+    /**
      * @brief Reset playlist to first track
      */
     void reset();
 
     /**
-     * @brief Get track count
-     * @return Number of tracks in playlist
+     * @brief Check if at start of playlist
+     * @return true if at first track
      */
-    size_t size() const
-    {
-        return m_tracks.size();
-    }
-
-    /**
-     * @brief Check if at end of playlist
-     * @return true if at end
-     */
-    bool isAtEnd() const
-    {
-        return !hasMore();
-    }
+    bool isAtStart() const;
 
     /**
      * @brief Get current track index
      * @return Current track index, or -1 if no track
      */
-    ssize_t getCurrentTrackIndex() const
+    ssize_t getCurrentIndex() const
     {
         return static_cast<ssize_t>(m_currentIndex);
-    }
-
-    /**
-     * @brief Get track count
-     * @return Number of tracks in playlist
-     */
-    size_t getTrackCount() const
-    {
-        return m_tracks.size();
     }
 
 private:

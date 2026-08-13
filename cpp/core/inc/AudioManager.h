@@ -60,10 +60,26 @@ namespace LahmaPlayer::Gui
             return m_dspEngine;
         }
 
+        /**
+         * @brief Set callback for when playback finishes
+         * @param callback Function to call when current track finishes
+         */
+        void setOnPlaybackFinishedCallback(std::function<void()> callback);
+
+        /**
+         * @brief Check if currently playing
+         * @return true if playback is active
+         */
+        bool isPlaying() const;
+
     private:
         // Audio resources
         std::shared_ptr<LahmaPlayer::AudioSource::AudioSource> m_audioSource;
         std::shared_ptr<LahmaPlayer::DspEngine::DspEngine> m_dspEngine;
         std::shared_ptr<LahmaPlayer::AudioStream::AudioStream> m_audioStream;
+        
+        // Playback state
+        std::function<void()> m_onPlaybackFinishedCallback;
+        bool m_isPlaying = false;
     };
 }

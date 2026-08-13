@@ -52,10 +52,7 @@ bool Playlist::loadFromDirectory(const std::string& dirPath)
     // Load each playable file
     m_tracks.clear();
     for (const auto& fileName : playableFiles) {
-        auto source = LahmaPlayer::AudioSource::AudioSourceFactory::createAudioSource(fileName);
-        if (source) {
-            m_tracks.push_back({fileName, source});
-        }
+        m_tracks.push_back({fileName});
     }
 
     // Reset index to 0 after loading
@@ -67,7 +64,7 @@ bool Playlist::loadFromDirectory(const std::string& dirPath)
 
 bool Playlist::advanceToNext()
 {
-    LahmaPlayer::Logger::getInstance().info("advanceToNext called, current: " + std::to_string(m_currentIndex));
+    LahmaPlayer::Logger::getInstance().info("advanceToNext called, current: " + std::to_string(getCurrentIndex()));
     
     if (m_currentIndex < m_tracks.size()) {
         m_currentIndex++;
@@ -79,10 +76,29 @@ bool Playlist::advanceToNext()
     return m_currentIndex < m_tracks.size();
 }
 
+bool Playlist::advanceToPrevious()
+{
+    LahmaPlayer::Logger::getInstance().info("advanceToPrevious called, current: " + std::to_string(getCurrentIndex()));
+    
+    if (m_currentIndex > 0) {
+        m_currentIndex--;
+        LahmaPlayer::Logger::getInstance().info("advanceToPrevious: moved to index " + std::to_string(m_currentIndex));
+    } else {
+        LahmaPlayer::Logger::getInstance().info("advanceToPrevious: already at start");
+    }
+    
+    return m_currentIndex >= 0;
+}
+
 void Playlist::reset()
 {
     LahmaPlayer::Logger::getInstance().info("reset called");
     m_currentIndex = 0;
+}
+
+bool Playlist::isAtStart() const
+{
+    return m_currentIndex == 0;
 }
 
 } // namespace LahmaPlayer

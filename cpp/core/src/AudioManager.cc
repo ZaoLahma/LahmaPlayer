@@ -51,6 +51,7 @@ namespace LahmaPlayer::Gui
         // Start the audio stream
         m_audioStream->start(m_audioSource);
         LahmaPlayer::Logger::getInstance().info("Playback started");
+        m_isPlaying = true;
     }
 
     void AudioManager::stopPlayback()
@@ -63,6 +64,17 @@ namespace LahmaPlayer::Gui
             m_audioStream->stop();
             m_audioStream->waitUntilFinished();
         }
+        m_isPlaying = false;
+    }
+
+    void AudioManager::setOnPlaybackFinishedCallback(std::function<void()> callback)
+    {
+        m_onPlaybackFinishedCallback = callback;
+    }
+
+    bool AudioManager::isPlaying() const
+    {
+        return m_isPlaying && m_audioStream;
     }
 
 }

@@ -34,6 +34,24 @@ namespace LahmaPlayer::Gui
             m_audioSource.reset();
         });
         
+        auto next_button = ftxui::Button("Next", [this] { 
+            if (m_nextCallback) {
+                m_nextCallback();
+            }
+        });
+        
+        auto prev_button = ftxui::Button("Prev", [this] { 
+            if (m_prevCallback) {
+                m_prevCallback();
+            }
+        });
+        
+        auto reset_button = ftxui::Button("Reset", [this] { 
+            if (m_resetCallback) {
+                m_resetCallback();
+            }
+        });
+        
         auto refresh_button = ftxui::Button("Refresh Files", [this] { 
             // This will be handled by the main GuiManager
         });
@@ -53,6 +71,9 @@ namespace LahmaPlayer::Gui
         auto controls = ftxui::Container::Vertical({
             play_button,
             stop_button,
+            next_button,
+            prev_button,
+            reset_button,
             refresh_button,
             exit_button
         });

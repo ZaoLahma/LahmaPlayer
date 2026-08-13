@@ -10,6 +10,7 @@
 #include "AudioManager.h"
 #include "FilePickerComponent.h"
 #include "ControlsComponent.h"
+#include "Playlist.h"
 #include <memory>
 #include <thread>
 #include <atomic>
@@ -88,5 +89,11 @@ namespace LahmaPlayer::Gui
         ftxui::Component createFilePickerComponent();
         void updateAudioFileList();
         bool isAudioFile(const std::string& filename);
+        
+        // Playlist
+        std::unique_ptr<Playlist> m_playlist;
+        void playNextTrack();
+        void playPreviousTrack();
+        void resetPlaylist();
     };
 }

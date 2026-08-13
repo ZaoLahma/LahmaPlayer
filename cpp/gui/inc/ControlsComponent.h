@@ -116,6 +116,33 @@ namespace LahmaPlayer::Gui
         }
 
         /**
+         * @brief Set the callback for next track
+         * @param callback Function to call when next is requested
+         */
+        void setNextCallback(std::function<void()> callback)
+        {
+            m_nextCallback = callback;
+        }
+
+        /**
+         * @brief Set the callback for previous track
+         * @param callback Function to call when previous is requested
+         */
+        void setPrevCallback(std::function<void()> callback)
+        {
+            m_prevCallback = callback;
+        }
+
+        /**
+         * @brief Set the callback for reset playlist
+         * @param callback Function to call when reset is requested
+         */
+        void setResetCallback(std::function<void()> callback)
+        {
+            m_resetCallback = callback;
+        }
+
+        /**
          * @brief Load an audio file
          * @param fileName The name of the file to load
          */
@@ -146,5 +173,8 @@ namespace LahmaPlayer::Gui
         std::function<void()> m_stopCallback;
         std::function<void()> m_exitCallback;
         std::function<void(const std::string&)> m_fileSelectedCallback;
+        std::function<void()> m_nextCallback;
+        std::function<void()> m_prevCallback;
+        std::function<void()> m_resetCallback;
     };
 }

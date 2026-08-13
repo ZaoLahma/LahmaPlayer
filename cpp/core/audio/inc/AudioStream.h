@@ -4,6 +4,7 @@
 
 #include <memory>
 #include <portaudio.h>
+#include <functional>
 
 namespace LahmaPlayer::AudioStream
 {
@@ -22,6 +23,17 @@ namespace LahmaPlayer::AudioStream
 
         void waitUntilFinished();
 
+        bool isPlaying() const { return m_playing && m_stream; }
+        
+        /**
+         * @brief Set callback for when playback finishes
+         * @param callback Function to call when current track finishes
+         */
+        void setOnPlaybackFinishedCallback(std::function<void()> callback)
+        {
+            m_onFinishedCallback = callback;
+        }
+
     private:
         //PortAudio callback
         static int callbackStatic(const void *inputBuffer, void *outputBuffer,
@@ -36,5 +48,6 @@ namespace LahmaPlayer::AudioStream
         AudioSource::AudioSource::AudioFormat m_audioFormat;
         PaStream* m_stream;
         bool m_playing = false;
+        std::function<void()> m_onFinishedCallback;
     };
 }

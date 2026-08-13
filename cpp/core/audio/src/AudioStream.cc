@@ -2,6 +2,7 @@
 #include <cmath>
 #include <portaudio.h>
 #include <thread>
+#include <functional>
 
 namespace LahmaPlayer::AudioStream
 {
@@ -85,6 +86,12 @@ namespace LahmaPlayer::AudioStream
         }
 
         m_playing = false;
+        
+        // Call the finished callback if set
+        if (m_onFinishedCallback) {
+            m_onFinishedCallback();
+        }
+        
         return paComplete;
     }
 }
