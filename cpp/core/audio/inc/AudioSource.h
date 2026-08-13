@@ -4,31 +4,31 @@
 #include <vector>
 namespace LahmaPlayer::AudioSource
 {
-    /**
-    * @class AudioSource
-    * @brief AudioSource is a class that is used to read audio data
-    */
-    class AudioSource
+/**
+ * @class AudioSource
+ * @brief AudioSource is a class that is used to read audio data
+ */
+class AudioSource
+{
+  public:
+    struct AudioFormat
     {
-    public:
-        struct AudioFormat
-        {
-            int numChannels;
-            int sampleRate;
-            int bitsPerSample;
-        };
-
-        enum class SeekDirection
-        {
-            Forward,
-            Backward
-        };
-
-        virtual ~AudioSource() {}
-
-        virtual AudioFormat getAudioFormat() = 0;
-        virtual bool hasMore() const = 0;
-        virtual void read(std::vector<float>& samples, uint32_t numSamples) = 0;
-        virtual void seek(uint32_t numSamples, SeekDirection direction) = 0;
+        int numChannels;
+        int sampleRate;
+        int bitsPerSample;
     };
-}
+
+    enum class SeekDirection
+    {
+        Forward,
+        Backward
+    };
+
+    virtual ~AudioSource() {}
+
+    virtual AudioFormat getAudioFormat() = 0;
+    virtual bool hasMore() const = 0;
+    virtual void read(std::vector<float> &samples, uint32_t numSamples) = 0;
+    virtual void seek(uint32_t numSamples, SeekDirection direction) = 0;
+};
+} // namespace LahmaPlayer::AudioSource

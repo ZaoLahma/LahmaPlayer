@@ -9,73 +9,74 @@ namespace LahmaPlayer
 namespace AudioFile
 {
 
-    AudioWavFile::AudioFormat AudioWavFile::getAudioFormat()
+AudioWavFile::AudioFormat AudioWavFile::getAudioFormat()
+{
+    if (!m_initialized)
     {
-        if (!m_initialized)
-        {
-            m_file.read(reinterpret_cast<char*>(&m_header), sizeof(m_header));
-            m_initialized = true;
-        }
-
-        AudioFormat format;
-        format.numChannels = m_header.numChannels;
-        format.sampleRate = m_header.sampleRate;
-        format.bitsPerSample = m_header.bitsPerSample;
-
-        return format;
+        m_file.read(reinterpret_cast<char *>(&m_header), sizeof(m_header));
+        m_initialized = true;
     }
 
-    bool AudioWavFile::hasMore() const
-    {
-        return m_hasMore;
-    }
+    AudioFormat format;
+    format.numChannels = m_header.numChannels;
+    format.sampleRate = m_header.sampleRate;
+    format.bitsPerSample = m_header.bitsPerSample;
 
-    void AudioWavFile::read(std::vector<float>& samples, uint32_t numSamples)
-    {
-        samples.resize(numSamples);
-        
-        if (m_header.bitsPerSample == 32)
-        {
-            std::vector<uint32_t> raw(numSamples);
-            m_file.read(reinterpret_cast<char*>(raw.data()), numSamples * sizeof(int32_t));
-            for (int i = 0; i < numSamples; i++)
-            {
-                samples[i] = std::max(-1.0f, raw[i] / 2147483647.0f);
-            }
-        }
-        else if (m_header.bitsPerSample == 16)
-        {
-            std::vector<int16_t> raw(numSamples);
-            m_file.read(reinterpret_cast<char*>(raw.data()), numSamples * sizeof(int16_t));
-            for (int i = 0; i < numSamples; i++)
-            {
-                samples[i] = std::max(-1.0f, raw[i] / 32767.0f);
-            }
-        }
-        else if (m_header.bitsPerSample == 8)
-        {
-            std::vector<uint8_t> raw(numSamples);
-            m_file.read(reinterpret_cast<char*>(raw.data()), numSamples);
-            for (int i = 0; i < numSamples; i++)
-            {
-                samples[i] = std::max(-1.0f, raw[i] / 127.0f);
-            }
-        }
-
-        m_hasMore = !m_file.eof();
-    }
-
-    void AudioWavFile::seek(uint32_t numSamples, AudioSource::SeekDirection direction)
-    {
-        int32_t byteOffset = numSamples * (m_header.bitsPerSample / 8) * m_header.numChannels * (direction == AudioSource::SeekDirection::Forward ? 1 : -1);
-        
-        if (byteOffset < 0)
-        {
-            // TODO: Handle me. Prevent seek before start of autio data
-            byteOffset = 0;
-        }
-
-        m_file.seekg(byteOffset, std::ios::cur);
-    }
+    return format;
 }
+
+bool AudioWavFile::hasMore() const
+{
+    return m_hasMore;
 }
+
+void AudioWavFile::read(std::vector<float> &samples, uint32_t numSamples)
+{
+    samples.resize(numSamples);
+
+    if (m_header.bitsPerSample == 32)
+    {
+        std::vector<uint32_t> raw(numSamples);
+        m_file.read(reinterpret_cast<char *>(raw.data()), numSamples * sizeof(int32_t));
+        for (int i = 0; i < numSamples; i++)
+        {
+            samples[i] = std::max(-1.0f, raw[i] / 2147483647.0f);
+        }
+    }
+    else if (m_header.bitsPerSample == 16)
+    {
+        std::vector<int16_t> raw(numSamples);
+        m_file.read(reinterpret_cast<char *>(raw.data()), numSamples * sizeof(int16_t));
+        for (int i = 0; i < numSamples; i++)
+        {
+            samples[i] = std::max(-1.0f, raw[i] / 32767.0f);
+        }
+    }
+    else if (m_header.bitsPerSample == 8)
+    {
+        std::vector<uint8_t> raw(numSamples);
+        m_file.read(reinterpret_cast<char *>(raw.data()), numSamples);
+        for (int i = 0; i < numSamples; i++)
+        {
+            samples[i] = std::max(-1.0f, raw[i] / 127.0f);
+        }
+    }
+
+    m_hasMore = !m_file.eof();
+}
+
+void AudioWavFile::seek(uint32_t numSamples, AudioSource::SeekDirection direction)
+{
+    int32_t byteOffset = numSamples * (m_header.bitsPerSample / 8) * m_header.numChannels *
+                         (direction == AudioSource::SeekDirection::Forward ? 1 : -1);
+
+    if (byteOffset < 0)
+    {
+        // TODO: Handle me. Prevent seek before start of autio data
+        byteOffset = 0;
+    }
+
+    m_file.seekg(byteOffset, std::ios::cur);
+}
+} // namespace AudioFile
+} // namespace LahmaPlayer

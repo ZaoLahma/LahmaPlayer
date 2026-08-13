@@ -6,24 +6,24 @@
 
 namespace LahmaPlayer::AudioFile
 {
-    class AudioFile : public AudioSource::AudioSource
+class AudioFile : public AudioSource::AudioSource
+{
+  public:
+    AudioFile(const std::string &fileName)
     {
-    public:
-        AudioFile(const std::string& fileName)
-        {
-            m_file.open(fileName, std::ios::in | std::ios::binary);
-        }
-        ~AudioFile()
-        {
-            m_file.close();
-        }
+        m_file.open(fileName, std::ios::in | std::ios::binary);
+    }
+    ~AudioFile()
+    {
+        m_file.close();
+    }
 
-        virtual AudioFormat getAudioFormat() = 0;
-        virtual bool hasMore() const = 0;
-        virtual void read(std::vector<float>& samples, uint32_t numSamples) = 0;
-        virtual void seek(uint32_t numSamples, AudioSource::SeekDirection direction) = 0;
+    virtual AudioFormat getAudioFormat() = 0;
+    virtual bool hasMore() const = 0;
+    virtual void read(std::vector<float> &samples, uint32_t numSamples) = 0;
+    virtual void seek(uint32_t numSamples, AudioSource::SeekDirection direction) = 0;
 
-    protected:
-        std::fstream m_file;
-    };
-}
+  protected:
+    std::fstream m_file;
+};
+} // namespace LahmaPlayer::AudioFile

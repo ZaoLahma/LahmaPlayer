@@ -6,14 +6,17 @@
 
 namespace LahmaPlayer::SignalModifier
 {
-    class SignalSampleWidthModifier : public SignalModifier::SignalModifier
+class SignalSampleWidthModifier : public SignalModifier::SignalModifier
+{
+  public:
+    void setSampleBits(int bits);
+    uint32_t requiredNumSamples(uint32_t numSamples) const override
     {
-    public:
-        void setSampleBits(int bits);
-        uint32_t requiredNumSamples(uint32_t numSamples) const override { return numSamples; }
-        void modify(std::vector<float>& samples) const override;
+        return numSamples;
+    }
+    void modify(std::vector<float> &samples) const override;
 
-    private:
-        uint8_t m_sampleBits = 16;
-    };
-}
+  private:
+    uint8_t m_sampleBits = 16;
+};
+} // namespace LahmaPlayer::SignalModifier

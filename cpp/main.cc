@@ -1,11 +1,11 @@
+#include <chrono>
 #include <iostream>
 #include <string>
 #include <thread>
-#include <chrono>
 
 #include "AudioManager.h"
-#include "GuiManager.h"
 #include "AudioSourceFactory.h"
+#include "GuiManager.h"
 #include "Logger.h"
 
 int main(int argc, char *argv[])
@@ -14,34 +14,38 @@ int main(int argc, char *argv[])
     std::string audioFileOrDir;
 
     // Parse command line arguments
-    for (int i = 1; i < argc; ++i) {
+    for (int i = 1; i < argc; ++i)
+    {
         std::string arg = argv[i];
-        if (arg == "--headless" || arg == "-h") {
+        if (arg == "--headless" || arg == "-h")
+        {
             headless = true;
-        } else if (headless && arg[0] != '-') {
+        }
+        else if (headless && arg[0] != '-')
+        {
             audioFileOrDir = arg;
         }
     }
 
     // Initialize logger
-    LahmaPlayer::Logger::getInstance().init("", true);  // Headless: terminal output
+    LahmaPlayer::Logger::getInstance().init("", true); // Headless: terminal output
 
     if (headless)
     {
         LahmaPlayer::Gui::AudioManager audioManager;
-        
+
         if (!audioFileOrDir.empty())
         {
             std::cout << "Playing file: " << audioFileOrDir << std::endl;
             std::cout.flush();
-            
+
             bool success = audioManager.loadAudioFile(audioFileOrDir);
             if (success)
             {
                 audioManager.startPlayback();
                 std::cout << "Playback started successfully. Press Ctrl+C to stop." << std::endl;
                 std::cout.flush();
-                
+
                 // Keep running until interrupted
                 while (true)
                 {
@@ -57,7 +61,7 @@ int main(int argc, char *argv[])
         {
             std::cerr << "No audio file specified" << std::endl;
         }
-        
+
         return 0;
     }
 

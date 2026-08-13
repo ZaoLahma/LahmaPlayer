@@ -1,46 +1,50 @@
 #include "Playlist.h"
 #include "AudioSourceFactory.h"
 #include "Logger.h"
-#include <iostream>
-#include <filesystem>
 #include <algorithm>
+#include <filesystem>
+#include <iostream>
 
-namespace LahmaPlayer {
+namespace LahmaPlayer
+{
 
-Playlist::Playlist()
-    : m_currentIndex(std::size_t(-1))
+Playlist::Playlist() : m_currentIndex(std::size_t(-1))
 {
     LahmaPlayer::Logger::getInstance().info("Playlist initialized");
 }
 
-Playlist::~Playlist()
-{
-}
+Playlist::~Playlist() {}
 
-bool Playlist::loadFromDirectory(const std::string& dirPath)
+bool Playlist::loadFromDirectory(const std::string &dirPath)
 {
     LahmaPlayer::Logger::getInstance().info("loadFromDirectory called for: " + dirPath);
-    
+
     // Check if path exists and is a directory
-    if (!std::filesystem::is_directory(dirPath)) {
+    if (!std::filesystem::is_directory(dirPath))
+    {
         LahmaPlayer::Logger::getInstance().warning("ERROR: Path is not a directory");
         return false;
     }
 
     // Scan directory for playable files
     std::vector<std::string> playableFiles;
-    
-    try {
-        for (const auto& entry : std::filesystem::directory_iterator(dirPath)) {
+
+    try
+    {
+        for (const auto &entry : std::filesystem::directory_iterator(dirPath))
+        {
             std::string path = entry.path().string();
-            
+
             // Try to create audio source - factory will return nullptr for unsupported files
             auto source = LahmaPlayer::AudioSource::AudioSourceFactory::createAudioSource(path);
-            if (source) {
+            if (source)
+            {
                 playableFiles.push_back(path);
             }
         }
-    } catch (const std::exception& e) {
+    }
+    catch (const std::exception &e)
+    {
         std::cerr << "Error scanning directory: " << e.what() << std::endl;
         LahmaPlayer::Logger::getInstance().error("Error scanning directory: " + std::string(e.what()));
         return false;
@@ -51,7 +55,8 @@ bool Playlist::loadFromDirectory(const std::string& dirPath)
 
     // Load each playable file
     m_tracks.clear();
-    for (const auto& fileName : playableFiles) {
+    for (const auto &fileName : playableFiles)
+    {
         m_tracks.push_back({fileName});
     }
 
@@ -61,42 +66,49 @@ bool Playlist::loadFromDirectory(const std::string& dirPath)
     return !m_tracks.empty();
 }
 
-
 bool Playlist::advanceToNext()
 {
     LahmaPlayer::Logger::getInstance().info("advanceToNext called, current: " + std::to_string(getCurrentIndex()));
-    
-    if (m_currentIndex < m_tracks.size()) {
+
+    if (m_currentIndex < m_tracks.size())
+    {
         m_currentIndex++;
         LahmaPlayer::Logger::getInstance().info("advanceToNext: moved to index " + std::to_string(getCurrentIndex()));
-        
+
         // Circular wrapping: if at end, wrap to first
-        if (m_currentIndex >= static_cast<int>(m_tracks.size())) {
+        if (m_currentIndex >= static_cast<int>(m_tracks.size()))
+        {
             m_currentIndex = 0;
             LahmaPlayer::Logger::getInstance().info("advanceToNext: wrapped to first track (index 0)");
         }
     }
-    
+
     return m_currentIndex < static_cast<int>(m_tracks.size());
 }
 
 bool Playlist::advanceToPrevious()
 {
     LahmaPlayer::Logger::getInstance().info("advanceToPrevious called, current: " + std::to_string(getCurrentIndex()));
-    
-    if (m_currentIndex > 0) {
+
+    if (m_currentIndex > 0)
+    {
         m_currentIndex--;
-        LahmaPlayer::Logger::getInstance().info("advanceToPrevious: moved to index " + std::to_string(getCurrentIndex()));
-    } else {
+        LahmaPlayer::Logger::getInstance().info("advanceToPrevious: moved to index " +
+                                                std::to_string(getCurrentIndex()));
+    }
+    else
+    {
         LahmaPlayer::Logger::getInstance().info("advanceToPrevious: already at start");
-        
+
         // Circular wrapping: if at start, wrap to last
-        if (!m_tracks.empty()) {
+        if (!m_tracks.empty())
+        {
             m_currentIndex = static_cast<int>(m_tracks.size()) - 1;
-            LahmaPlayer::Logger::getInstance().info("advanceToPrevious: wrapped to last track (index " + std::to_string(m_currentIndex) + ")");
+            LahmaPlayer::Logger::getInstance().info("advanceToPrevious: wrapped to last track (index " +
+                                                    std::to_string(m_currentIndex) + ")");
         }
     }
-    
+
     return m_currentIndex >= 0;
 }
 

@@ -3,7 +3,8 @@
 #include "AudioManager.h"
 #include <memory>
 
-namespace LahmaPlayer::Headless {
+namespace LahmaPlayer::Headless
+{
 
 /**
  * @class HeadlessAudioManager
@@ -12,7 +13,7 @@ namespace LahmaPlayer::Headless {
  */
 class HeadlessAudioManager
 {
-public:
+  public:
     HeadlessAudioManager();
     ~HeadlessAudioManager();
 
@@ -21,14 +22,14 @@ public:
      * @param fileName The path to the audio file
      * @return true if successful, false otherwise
      */
-    bool playFile(const std::string& fileName);
+    bool playFile(const std::string &fileName);
 
     /**
      * @brief Stop playback
      */
     void stop();
 
-private:
+  private:
     std::unique_ptr<Gui::AudioManager> m_audioManager;
 };
 
