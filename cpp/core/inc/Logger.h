@@ -17,7 +17,8 @@ enum class LogLevel {
 
 class Logger {
 public:
-    static Logger& getInstance() {
+    static Logger& getInstance()
+    {
         static Logger instance;
         return instance;
     }

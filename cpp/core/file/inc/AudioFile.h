@@ -9,8 +9,14 @@ namespace LahmaPlayer::AudioFile
     class AudioFile : public AudioSource::AudioSource
     {
     public:
-        AudioFile(const std::string& fileName) { m_file.open(fileName, std::ios::in | std::ios::binary); }
-        ~AudioFile() { m_file.close(); }
+        AudioFile(const std::string& fileName)
+        {
+            m_file.open(fileName, std::ios::in | std::ios::binary);
+        }
+        ~AudioFile()
+        {
+            m_file.close();
+        }
 
         virtual AudioFormat getAudioFormat() = 0;
         virtual bool hasMore() const = 0;

@@ -56,43 +56,64 @@ namespace LahmaPlayer::Gui
          * @brief Get the play/pause state
          * @return true if audio is currently playing, false otherwise
          */
-        bool getIsPlaying() const { return m_isPlaying; }
+        bool getIsPlaying() const
+        {
+            return m_isPlaying;
+        }
 
         /**
          * @brief Get the progress of audio playback
          * @return Current progress as a double between 0 and 1
          */
-        double getProgress() const { return m_progress; }
+        double getProgress() const
+        {
+            return m_progress;
+        }
 
         /**
          * @brief Set the progress of audio playback
          * @param progress Progress value between 0 and 1
          */
-        void setProgress(double progress) { m_progress = progress; }
+        void setProgress(double progress)
+        {
+            m_progress = progress;
+        }
 
         /**
          * @brief Set the callback for play/pause operations
          * @param callback Function to call when play/pause is requested
          */
-        void setPlayPauseCallback(std::function<void()> callback) { m_playPauseCallback = callback; }
+        void setPlayPauseCallback(std::function<void()> callback)
+        {
+            m_playPauseCallback = callback;
+        }
 
         /**
          * @brief Set the callback for stop operations
          * @param callback Function to call when stop is requested
          */
-        void setStopCallback(std::function<void()> callback) { m_stopCallback = callback; }
+        void setStopCallback(std::function<void()> callback)
+        {
+            m_stopCallback = callback;
+        }
 
         /**
          * @brief Set the callback for exit operations
          * @param callback Function to call when exit is requested
          */
-        void setExitCallback(std::function<void()> callback) { m_exitCallback = callback; }
+        void setExitCallback(std::function<void()> callback)
+        {
+            m_exitCallback = callback;
+        }
 
         /**
          * @brief Set the callback for file selection
          * @param callback Function to call when a file is selected
          */
-        void setFileSelectedCallback(std::function<void(const std::string&)> callback) { m_fileSelectedCallback = callback; }
+        void setFileSelectedCallback(std::function<void(const std::string&)> callback)
+        {
+            m_fileSelectedCallback = callback;
+        }
 
         /**
          * @brief Load an audio file
@@ -104,7 +125,10 @@ namespace LahmaPlayer::Gui
          * @brief Get the file name
          * @return Current file name
          */
-        const std::string& getFileName() const { return m_fileName; }
+        const std::string& getFileName() const
+        {
+            return m_fileName;
+        }
 
     private:
         // Audio state

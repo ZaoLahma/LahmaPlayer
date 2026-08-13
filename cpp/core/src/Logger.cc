@@ -6,7 +6,8 @@
 
 namespace LahmaPlayer {
 
-void Logger::init(const std::string& logPath, bool console) {
+void Logger::init(const std::string& logPath, bool console)
+{
     std::lock_guard<std::mutex> lock(m_mutex);
     
     m_minLevel = LogLevel::INFO;
@@ -31,7 +32,8 @@ void Logger::init(const std::string& logPath, bool console) {
     }
 }
 
-void Logger::shutdown() {
+void Logger::shutdown()
+{
     std::lock_guard<std::mutex> lock(m_mutex);
     
     if (m_fileStream) {
@@ -41,7 +43,8 @@ void Logger::shutdown() {
     }
 }
 
-void Logger::log(LogLevel level, const std::string& message, bool flush) {
+void Logger::log(LogLevel level, const std::string& message, bool flush)
+{
     std::lock_guard<std::mutex> lock(m_mutex);
     
     // Check if level should be logged
@@ -97,19 +100,23 @@ void Logger::log(LogLevel level, const std::string& message, bool flush) {
     }
 }
 
-void Logger::debug(const std::string& fmt) {
+void Logger::debug(const std::string& fmt)
+{
     log(LogLevel::DEBUG, fmt, false);
 }
 
-void Logger::info(const std::string& fmt) {
+void Logger::info(const std::string& fmt)
+{
     log(LogLevel::INFO, fmt, false);
 }
 
-void Logger::warning(const std::string& fmt) {
+void Logger::warning(const std::string& fmt)
+{
     log(LogLevel::WARNING, fmt, true);
 }
 
-void Logger::error(const std::string& fmt) {
+void Logger::error(const std::string& fmt)
+{
     log(LogLevel::ERROR, fmt, true);
 }
 

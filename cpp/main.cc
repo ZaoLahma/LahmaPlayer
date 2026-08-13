@@ -26,27 +26,35 @@ int main(int argc, char *argv[])
     // Initialize logger
     LahmaPlayer::Logger::getInstance().init("", true);  // Headless: terminal output
 
-    if (headless) {
+    if (headless)
+    {
         LahmaPlayer::Gui::AudioManager audioManager;
         
-        if (!audioFileOrDir.empty()) {
+        if (!audioFileOrDir.empty())
+        {
             std::cout << "Playing file: " << audioFileOrDir << std::endl;
             std::cout.flush();
             
             bool success = audioManager.loadAudioFile(audioFileOrDir);
-            if (success) {
+            if (success)
+            {
                 audioManager.startPlayback();
                 std::cout << "Playback started successfully. Press Ctrl+C to stop." << std::endl;
                 std::cout.flush();
                 
                 // Keep running until interrupted
-                while (true) {
+                while (true)
+                {
                     std::this_thread::sleep_for(std::chrono::milliseconds(100));
                 }
-            } else {
+            }
+            else
+            {
                 std::cerr << "Error: Failed to load file" << std::endl;
             }
-        } else {
+        }
+        else
+        {
             std::cerr << "No audio file specified" << std::endl;
         }
         

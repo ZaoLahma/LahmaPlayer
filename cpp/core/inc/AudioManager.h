@@ -37,19 +37,28 @@ namespace LahmaPlayer::Gui
          * @brief Get the audio source
          * @return Pointer to the audio source
          */
-        std::shared_ptr<LahmaPlayer::AudioSource::AudioSource> getAudioSource() const { return m_audioSource; }
+        std::shared_ptr<LahmaPlayer::AudioSource::AudioSource> getAudioSource() const
+        {
+            return m_audioSource;
+        }
 
         /**
          * @brief Get the audio stream
          * @return Pointer to the audio stream
          */
-        std::shared_ptr<LahmaPlayer::AudioStream::AudioStream> getAudioStream() const { return m_audioStream; }
+        std::shared_ptr<LahmaPlayer::AudioStream::AudioStream> getAudioStream() const
+        {
+            return m_audioStream;
+        }
 
         /**
          * @brief Get the DSP engine
          * @return Pointer to the DSP engine
          */
-        std::shared_ptr<LahmaPlayer::DspEngine::DspEngine> getDspEngine() const { return m_dspEngine; }
+        std::shared_ptr<LahmaPlayer::DspEngine::DspEngine> getDspEngine() const
+        {
+            return m_dspEngine;
+        }
 
     private:
         // Audio resources

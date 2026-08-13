@@ -36,10 +36,19 @@ namespace LahmaPlayer::Gui
         bool isAudioFile(const std::string& filename);
 
         // Getters
-        const std::vector<std::string>& getAudioFiles() const { return m_audioFiles; }
-        int getSelectedFileIndex() const { return m_selectedFileIndex; }
-        void setSelectedFileIndex(int index) { m_selectedFileIndex = index; }
-        std::string getSelectedFileName() const { return m_audioFiles.empty() ? "" : m_audioFiles[m_selectedFileIndex]; }
+        const std::vector<std::string>& getAudioFiles() const
+        {
+            return m_audioFiles;
+        }
+        int getSelectedFileIndex() const
+        {
+            return m_selectedFileIndex;
+        }
+        void setSelectedFileIndex(int index)
+        {
+            m_selectedFileIndex = index;
+        }
+
 
 
 
@@ -47,13 +56,19 @@ namespace LahmaPlayer::Gui
          * @brief Set the callback for refresh operations
          * @param callback Function to call when refresh is requested
          */
-        void setRefreshCallback(std::function<void()> callback) { m_refreshCallback = callback; }
+        void setRefreshCallback(std::function<void()> callback)
+        {
+            m_refreshCallback = callback;
+        }
 
         /**
          * @brief Set the callback for exit operations
          * @param callback Function to call when exit is requested
          */
-        void setExitCallback(std::function<void()> callback) { m_exitCallback = callback; }
+        void setExitCallback(std::function<void()> callback)
+        {
+            m_exitCallback = callback;
+        }
 
     private:
         // Audio files list

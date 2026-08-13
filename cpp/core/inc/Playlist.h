@@ -40,19 +40,28 @@ public:
      * @brief Check if there are more tracks available
      * @return true if there are more tracks
      */
-    bool hasMore() const { return m_currentIndex < m_tracks.size(); }
+    bool hasMore() const
+    {
+        return m_currentIndex < m_tracks.size();
+    }
 
     /**
      * @brief Get current track (mutable)
      * @return Reference to current track
      */
-    Track& currentTrack() { return m_tracks[m_currentIndex]; }
+    Track& currentTrack()
+    {
+        return m_tracks[m_currentIndex];
+    }
 
     /**
      * @brief Get current track (const)
      * @return Const reference to current track
      */
-    const Track& currentTrack() const { return m_tracks[m_currentIndex]; }
+    const Track& currentTrack() const
+    {
+        return m_tracks[m_currentIndex];
+    }
 
     /**
      * @brief Advance to next track
@@ -69,25 +78,37 @@ public:
      * @brief Get track count
      * @return Number of tracks in playlist
      */
-    size_t size() const { return m_tracks.size(); }
+    size_t size() const
+    {
+        return m_tracks.size();
+    }
 
     /**
      * @brief Check if at end of playlist
      * @return true if at end
      */
-    bool isAtEnd() const { return !hasMore(); }
+    bool isAtEnd() const
+    {
+        return !hasMore();
+    }
 
     /**
      * @brief Get current track index
      * @return Current track index, or -1 if no track
      */
-    ssize_t getCurrentTrackIndex() const { return static_cast<ssize_t>(m_currentIndex); }
+    ssize_t getCurrentTrackIndex() const
+    {
+        return static_cast<ssize_t>(m_currentIndex);
+    }
 
     /**
      * @brief Get track count
      * @return Number of tracks in playlist
      */
-    size_t getTrackCount() const { return m_tracks.size(); }
+    size_t getTrackCount() const
+    {
+        return m_tracks.size();
+    }
 
 private:
     std::vector<Track> m_tracks;
