@@ -8,13 +8,23 @@ namespace LahmaPlayer::AudioFile
 class AudioWavFile : public AudioFile
 {
   public:
-    AudioWavFile(const std::string &fileName) : AudioFile(fileName) {}
+    AudioWavFile(const std::string &fileName) : AudioFile(fileName)
+    {
+        m_file.seekg(0, std::ios::end);
+        size_t fileSize = m_file.tellg();
+        m_file.seekg(0, std::ios::beg);
+        
+        m_file.read(reinterpret_cast<char *>(&m_header), sizeof(m_header));
+        m_initialized = true;
+        m_totalSamples = m_header.dataSize * m_header.numChannels / m_header.bitsPerSample;
+    }
     ~AudioWavFile() {}
 
     AudioFormat getAudioFormat() override;
     bool hasMore() const override;
     void read(std::vector<float> &samples, uint32_t numSamples) override;
-    void seek(uint32_t numSamples, AudioSource::SeekDirection direction) override;
+    void seek(uint32_t numSamples, LahmaPlayer::AudioSource::AudioSource::SeekDirection direction) override;
+    uint32_t getTotalSamples() const override;
 
   private:
     struct WavHeader
@@ -37,5 +47,7 @@ class AudioWavFile : public AudioFile
     bool m_initialized = false;
     WavHeader m_header;
     bool m_hasMore = true;
+    uint32_t m_currentSample = 0;
+    uint32_t m_totalSamples = 0;
 };
 } // namespace LahmaPlayer::AudioFile

@@ -2,6 +2,7 @@
 
 #include "AudioSource.h"
 #include "Logger.h"
+#include <cstdint>
 #include <memory>
 #include <string>
 #include <vector>
@@ -24,6 +25,16 @@ class Playlist
     {
         std::string fileName;
         size_t currentIndex = 0; // For seeking within track
+    };
+
+    /**
+     * @struct TrackPosition
+     * @brief Represents position within a track
+     */
+    struct TrackPosition
+    {
+        size_t trackIndex = std::size_t(-1);
+        uint32_t samplePosition = 0;
     };
 
     Playlist();
@@ -95,9 +106,24 @@ class Playlist
         return static_cast<ssize_t>(m_currentIndex);
     }
 
+    /**
+     * @brief Seek within current track
+     * @param numSamples Number of samples to seek
+     * @param direction Seek direction
+     * @return true if seek was successful
+     */
+    bool seekTrack(uint32_t numSamples, LahmaPlayer::AudioSource::AudioSource::SeekDirection direction);
+
+    /**
+     * @brief Get current sample position in track
+     * @return Current sample position, or 0 if no track loaded
+     */
+    uint32_t getCurrentTrackPosition() const;
+
   private:
     std::vector<Track> m_tracks;
     size_t m_currentIndex = std::size_t(-1);
+    uint32_t m_currentPosition = 0;
 };
 
 } // namespace LahmaPlayer

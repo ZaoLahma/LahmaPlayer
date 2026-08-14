@@ -75,4 +75,8 @@ bool AudioManager::isPlaying() const
     return m_isPlaying && m_audioStream;
 }
 
+void AudioManager::setOnSeekCallback(std::function<void(uint32_t position)> callback)
+{
+    m_onSeekCallback = callback;
+}
 } // namespace LahmaPlayer::Gui

@@ -4,10 +4,11 @@
 #include "AudioSource.h"
 #include "AudioSourceFactory.h"
 #include "AudioStream.h"
-#include "ControlsComponent.h"
+#include "AudioControlsComponent.h"
 #include "DspEngine.h"
 #include "FilePickerComponent.h"
 #include "Playlist.h"
+#include "SystemControlsComponent.h"
 #include "ftxui/component/component.hpp"
 #include "ftxui/component/screen_interactive.hpp"
 #include "ftxui/dom/elements.hpp"
@@ -66,7 +67,8 @@ class GuiManager
 
     // UI components
     std::unique_ptr<FilePickerComponent> m_filePicker;
-    std::unique_ptr<ControlsComponent> m_controls;
+    std::unique_ptr<AudioControlsComponent> m_controls;
+    std::unique_ptr<SystemControlsComponent> m_systemControls;
 
     // Audio state
     std::shared_ptr<LahmaPlayer::AudioSource::AudioSource> m_audioSource;

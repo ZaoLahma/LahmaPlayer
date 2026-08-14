@@ -3,7 +3,6 @@
 #include "AudioSource.h"
 #include "AudioSourceFactory.h"
 #include "AudioStream.h"
-#include "DspEngine.h"
 #include "ftxui/component/component.hpp"
 #include "ftxui/component/screen_interactive.hpp"
 #include "ftxui/dom/elements.hpp"
@@ -16,11 +15,11 @@
 
 namespace LahmaPlayer::Gui
 {
-class ControlsComponent
+class AudioControlsComponent
 {
   public:
-    ControlsComponent();
-    ~ControlsComponent();
+    AudioControlsComponent();
+    ~AudioControlsComponent();
 
     /**
      * @brief Create the controls component
@@ -101,10 +100,6 @@ class ControlsComponent
      * @brief Set the callback for exit operations
      * @param callback Function to call when exit is requested
      */
-    void setExitCallback(std::function<void()> callback)
-    {
-        m_exitCallback = callback;
-    }
 
     /**
      * @brief Set the callback for file selection
@@ -134,15 +129,6 @@ class ControlsComponent
     }
 
     /**
-     * @brief Set the callback for reset playlist
-     * @param callback Function to call when reset is requested
-     */
-    void setResetCallback(std::function<void()> callback)
-    {
-        m_resetCallback = callback;
-    }
-
-    /**
      * @brief Load an audio file
      * @param fileName The name of the file to load
      */
@@ -160,7 +146,6 @@ class ControlsComponent
   private:
     // Audio state
     std::shared_ptr<LahmaPlayer::AudioSource::AudioSource> m_audioSource;
-    std::shared_ptr<LahmaPlayer::DspEngine::DspEngine> m_dspEngine;
     std::shared_ptr<LahmaPlayer::AudioStream::AudioStream> m_audioStream;
     std::string m_fileName;
 
@@ -171,10 +156,8 @@ class ControlsComponent
     // Callbacks
     std::function<void()> m_playPauseCallback;
     std::function<void()> m_stopCallback;
-    std::function<void()> m_exitCallback;
     std::function<void(const std::string &)> m_fileSelectedCallback;
     std::function<void()> m_nextCallback;
     std::function<void()> m_prevCallback;
-    std::function<void()> m_resetCallback;
 };
 } // namespace LahmaPlayer::Gui

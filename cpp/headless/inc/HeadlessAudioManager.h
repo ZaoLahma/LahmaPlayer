@@ -29,6 +29,24 @@ class HeadlessAudioManager
      */
     void stop();
 
+    /**
+     * @brief Seek to absolute sample position
+     * @param samples Absolute sample position to seek to
+     */
+    void seekTo(uint32_t samples);
+
+    /**
+     * @brief Seek forward by number of samples
+     * @param numSamples Number of samples to seek forward
+     */
+    void seekForward(uint32_t numSamples);
+
+    /**
+     * @brief Seek backward by number of samples
+     * @param numSamples Number of samples to seek backward
+     */
+    void seekBackward(uint32_t numSamples);
+
   private:
     std::unique_ptr<Gui::AudioManager> m_audioManager;
 };

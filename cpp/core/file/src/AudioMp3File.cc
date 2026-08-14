@@ -12,6 +12,7 @@ namespace LahmaPlayer
 {
 namespace AudioFile
 {
+
 AudioMp3File::AudioMp3File(const std::string &fileName) : AudioFile(fileName)
 {
     // Load file into memory because that's apparently how minimp3_ex wants it
@@ -63,9 +64,33 @@ void AudioMp3File::read(std::vector<float> &samples, uint32_t numSamples)
     {
         std::fill(samples.begin() + samplesRead, samples.end(), 0.0f);
     }
+    
+    // Track current sample position
+    m_currentSample += samplesRead;
 }
 
-void AudioMp3File::seek(uint32_t numSamples, AudioSource::SeekDirection direction) {}
+void AudioMp3File::seek(uint32_t numSamples, LahmaPlayer::AudioSource::AudioSource::SeekDirection direction)
+{
+    int64_t currentSample = m_currentSample;
+    int64_t targetSample = currentSample + 
+        (direction == LahmaPlayer::AudioSource::AudioSource::SeekDirection::Forward ? numSamples : -numSamples);
+    
+    // Clamp to valid range
+    if (targetSample < 0) targetSample = 0;
+    if (targetSample > m_decoder.detected_samples) 
+        targetSample = m_decoder.detected_samples;
+    
+    // Seek to new position
+    mp3dec_ex_seek(&m_decoder, static_cast<uint64_t>(targetSample));
+    m_currentSample = targetSample;
+    
+    m_hasMore = true;
+}
+
+uint32_t AudioMp3File::getTotalSamples() const
+{
+    return static_cast<uint32_t>(m_decoder.detected_samples);
+}
 
 size_t AudioMp3File::skipID3Header(std::fstream &file)
 {

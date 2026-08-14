@@ -41,6 +41,30 @@ void AudioStream::stop()
     m_playing = false;
 }
 
+uint32_t AudioStream::getTotalSamples() const
+{
+    return m_audioSource->getTotalSamples();
+}
+
+void AudioStream::seek(uint32_t numSamples, LahmaPlayer::AudioSource::AudioSource::SeekDirection direction)
+{
+    // PortAudio streaming doesn't support mid-stream seeking.
+    // We need to stop, seek, and restart.
+    if (m_playing && m_stream)
+    {
+        stop();
+    }
+
+    // Perform the seek
+    m_audioSource->seek(numSamples, direction);
+
+    // Restart playback if there's still data
+    if (m_audioSource && m_audioSource->hasMore())
+    {
+        start(m_audioSource);
+    }
+}
+
 void AudioStream::waitUntilFinished()
 {
     while (m_playing)
@@ -89,4 +113,5 @@ int AudioStream::callback(void *output, unsigned long frameCount)
 
     return paComplete;
 }
+
 } // namespace LahmaPlayer::AudioStream

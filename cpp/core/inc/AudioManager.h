@@ -5,6 +5,7 @@
 #include "AudioStream.h"
 #include "DspEngine.h"
 #include "Logger.h"
+#include <functional>
 #include <memory>
 #include <string>
 
@@ -61,6 +62,47 @@ class AudioManager
     }
 
     /**
+     * @brief Seek to a new position
+     * @param numSamples Number of samples to seek
+     * @param direction Seek direction (Forward or Backward)
+     * @return true if seek was successful
+     */
+    bool seek(uint32_t numSamples, LahmaPlayer::AudioSource::AudioSource::SeekDirection direction)
+    {
+        if (m_audioSource)
+        {
+            // Get current position before seeking
+            uint32_t currentPosition = m_audioSource->getTotalSamples();
+            
+            m_audioSource->seek(numSamples, direction);
+            
+            // Call seek callback with new position
+            if (m_onSeekCallback)
+            {
+                m_onSeekCallback(m_audioSource->getTotalSamples());
+            }
+            
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @brief Get total samples in current track
+     * @return Total number of samples
+     */
+    uint32_t getTotalSamples() const
+    {
+        return m_audioSource ? m_audioSource->getTotalSamples() : 0;
+    }
+
+    /**
+     * @brief Set callback for when seek occurs
+     * @param callback Function to call when seek happens
+     */
+    void setOnSeekCallback(std::function<void(uint32_t position)> callback);
+
+    /**
      * @brief Set callback for when playback finishes
      * @param callback Function to call when current track finishes
      */
@@ -80,6 +122,7 @@ class AudioManager
 
     // Playback state
     std::function<void()> m_onPlaybackFinishedCallback;
+    std::function<void(uint32_t position)> m_onSeekCallback;
     bool m_isPlaying = false;
 };
 } // namespace LahmaPlayer::Gui

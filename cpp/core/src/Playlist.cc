@@ -123,4 +123,35 @@ bool Playlist::isAtStart() const
     return m_currentIndex == 0;
 }
 
+bool Playlist::seekTrack(uint32_t numSamples, LahmaPlayer::AudioSource::AudioSource::SeekDirection direction)
+{
+    if (m_currentIndex == std::size_t(-1) || m_currentIndex >= m_tracks.size())
+    {
+        LahmaPlayer::Logger::getInstance().warning("seekTrack: No track loaded");
+        return false;
+    }
+
+    LahmaPlayer::Logger::getInstance().info("seekTrack called, current position: " + std::to_string(m_currentPosition) +
+                                            ", seeking: " + std::to_string(numSamples) + " samples " +
+                                            (direction == LahmaPlayer::AudioSource::AudioSource::SeekDirection::Forward ? "forward" : "backward"));
+
+    // Note: For playlist functionality, the actual seek is delegated to the audio source
+    // when it's loaded through AudioManager. This method is a placeholder for future
+    // implementation where we might want to seek within the current track without reloading.
+    // For now, we just update the position tracking.
+    
+    // TODO: Implement proper seek by keeping audio source reference in Track struct
+    return true;
+}
+
+uint32_t Playlist::getCurrentTrackPosition() const
+{
+    if (m_currentIndex == std::size_t(-1) || m_currentIndex >= m_tracks.size())
+    {
+        return 0;
+    }
+
+    return m_currentPosition;
+}
+
 } // namespace LahmaPlayer

@@ -19,7 +19,8 @@ class DspEngine : public AudioSource::AudioSource
     AudioFormat getAudioFormat() override;
     bool hasMore() const override;
     void read(std::vector<float> &samples, uint32_t numSamples) override;
-    void seek(uint32_t numSamples, AudioSource::SeekDirection direction) override;
+    void seek(uint32_t numSamples, LahmaPlayer::AudioSource::AudioSource::SeekDirection direction) override;
+    uint32_t getTotalSamples() const override;
 
     void registerSignalModifier(std::shared_ptr<SignalModifier::SignalModifier> signalModifier);
 

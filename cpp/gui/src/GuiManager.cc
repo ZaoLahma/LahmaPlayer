@@ -1,5 +1,6 @@
 #include "GuiManager.h"
 #include "Logger.h"
+#include "SystemControlsComponent.h"
 #include <algorithm>
 #include <chrono>
 #include <filesystem>
@@ -20,7 +21,8 @@ GuiManager::GuiManager() : m_isPlaying(false), m_hasAudioFileLoaded(false), m_pr
 
     // Initialize components
     m_filePicker = std::make_unique<FilePickerComponent>();
-    m_controls = std::make_unique<ControlsComponent>();
+    m_controls = std::make_unique<AudioControlsComponent>();
+    m_systemControls = std::make_unique<SystemControlsComponent>();
 
     updateAudioFileList();
 
@@ -56,7 +58,7 @@ void GuiManager::startLoop()
             }
         });
 
-    // Set up callbacks for controls component
+    // Set up callbacks for audio controls component
     m_controls->setPlayPauseCallback(
         [this]()
         {
@@ -79,12 +81,6 @@ void GuiManager::startLoop()
         {
             stopPlayback();
             m_hasAudioFileLoaded = false;
-        });
-
-    m_controls->setExitCallback(
-        [this]()
-        {
-            stopLoop();
         });
 
     // Set up callbacks for controls component (for file selection)
@@ -111,18 +107,11 @@ void GuiManager::startLoop()
             playPreviousTrack();
         });
 
-    // Set up Reset button callback
-    m_controls->setResetCallback(
+    // Set up Exit callback for system controls
+    m_systemControls->setExitCallback(
         [this]()
         {
-            LahmaPlayer::Logger::getInstance().info("Reset button clicked");
-            resetPlaylist();
-        });
-
-    m_filePicker->setRefreshCallback(
-        [this]()
-        {
-            updateAudioFileList();
+            stopLoop();
         });
 
     m_filePicker->setExitCallback(
@@ -134,15 +123,16 @@ void GuiManager::startLoop()
     // Get the components
     auto file_picker = m_filePicker->createComponent();
     auto controls = m_controls->createComponent();
+    auto system_controls = m_systemControls->createComponent();
 
-    // Create separate sections for file picker and controls
-    auto file_picker_section = ftxui::Container::Vertical({file_picker});
+    // Create left column with file picker on top and audio controls below
+    auto left_column = ftxui::Container::Vertical({file_picker, controls});
 
-    auto controls_section = ftxui::Container::Vertical({controls});
+    // Create right column with system controls
+    auto right_column = ftxui::Container::Vertical({system_controls});
 
-    // Create a horizontal layout with file picker on the left and controls on the right
-    auto main_container =
-        ftxui::Container::Horizontal({file_picker_section | ftxui::flex_grow, controls_section | ftxui::flex_grow});
+    // Create a horizontal layout with left column on the left and right column on the right
+    auto main_container = ftxui::Container::Horizontal({left_column, right_column});
 
     // Set the main component for the screen
     m_component = main_container;
@@ -158,9 +148,9 @@ void GuiManager::loadAudioFile()
 {
     LahmaPlayer::Logger::getInstance().info("loadAudioFile called");
     LahmaPlayer::Logger::getInstance().info("Selected file index: " +
-                                            std::to_string(m_filePicker->getSelectedFileIndex()));
+                                        std::to_string(m_filePicker->getSelectedFileIndex()));
     LahmaPlayer::Logger::getInstance().info("Audio files count: " +
-                                            std::to_string(m_filePicker->getAudioFiles().size()));
+                                        std::to_string(m_filePicker->getAudioFiles().size()));
 
     // Stop any current playback
     stopPlayback();
@@ -322,34 +312,6 @@ void GuiManager::playPreviousTrack()
     else
     {
         LahmaPlayer::Logger::getInstance().warning("Failed to load previous track: " + prevFile);
-    }
-}
-
-void GuiManager::resetPlaylist()
-{
-    LahmaPlayer::Logger::getInstance().info("resetPlaylist called");
-
-    if (!m_playlist)
-    {
-        LahmaPlayer::Logger::getInstance().warning("Playlist not initialized");
-        return;
-    }
-
-    m_playlist->reset();
-
-    // Reload first track
-    std::string firstFile = m_playlist->currentTrackFileName();
-    LahmaPlayer::Logger::getInstance().info("Resetting to first track: " + firstFile);
-
-    bool success = m_audioManager->loadAudioFile(firstFile);
-    if (success)
-    {
-        m_audioManager->startPlayback();
-        m_hasAudioFileLoaded = true;
-    }
-    else
-    {
-        LahmaPlayer::Logger::getInstance().warning("Failed to load first track: " + firstFile);
     }
 }
 } // namespace LahmaPlayer::Gui

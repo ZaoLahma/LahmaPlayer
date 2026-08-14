@@ -30,5 +30,9 @@ class AudioSource
     virtual bool hasMore() const = 0;
     virtual void read(std::vector<float> &samples, uint32_t numSamples) = 0;
     virtual void seek(uint32_t numSamples, SeekDirection direction) = 0;
+    virtual uint32_t getTotalSamples() const
+    {
+        return 0;
+    }
 };
 } // namespace LahmaPlayer::AudioSource

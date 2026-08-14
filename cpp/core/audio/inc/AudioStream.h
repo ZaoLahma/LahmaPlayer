@@ -37,6 +37,19 @@ class AudioStream
         m_onFinishedCallback = callback;
     }
 
+    /**
+     * @brief Seek to a new position
+     * @param numSamples Number of samples to seek
+     * @param direction Seek direction
+     */
+    void seek(uint32_t numSamples, LahmaPlayer::AudioSource::AudioSource::SeekDirection direction);
+
+    /**
+     * @brief Get total samples in source
+     * @return Total number of samples
+     */
+    uint32_t getTotalSamples() const;
+
   private:
     // PortAudio callback
     static int callbackStatic(const void *inputBuffer, void *outputBuffer, unsigned long framesPerBuffer,

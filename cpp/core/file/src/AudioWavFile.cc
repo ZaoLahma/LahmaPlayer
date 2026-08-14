@@ -63,20 +63,33 @@ void AudioWavFile::read(std::vector<float> &samples, uint32_t numSamples)
     }
 
     m_hasMore = !m_file.eof();
+    m_currentSample += numSamples;
 }
 
-void AudioWavFile::seek(uint32_t numSamples, AudioSource::SeekDirection direction)
+void AudioWavFile::seek(uint32_t numSamples, LahmaPlayer::AudioSource::AudioSource::SeekDirection direction)
 {
-    int32_t byteOffset = numSamples * (m_header.bitsPerSample / 8) * m_header.numChannels *
-                         (direction == AudioSource::SeekDirection::Forward ? 1 : -1);
-
-    if (byteOffset < 0)
-    {
-        // TODO: Handle me. Prevent seek before start of autio data
-        byteOffset = 0;
-    }
-
-    m_file.seekg(byteOffset, std::ios::cur);
+    int64_t currentSample = m_currentSample;
+    int64_t targetSample = currentSample + 
+        (direction == LahmaPlayer::AudioSource::AudioSource::SeekDirection::Forward ? numSamples : -numSamples);
+    
+    // Clamp to valid range
+    if (targetSample < 0) targetSample = 0;
+    if (targetSample > m_totalSamples) targetSample = m_totalSamples;
+    
+    // Calculate byte offset from current position
+    int64_t byteOffset = (targetSample - currentSample) * 
+                         (m_header.bitsPerSample / 8 * m_header.numChannels);
+    
+    // Seek from current position
+    m_file.seekg(static_cast<int32_t>(byteOffset), std::ios::cur);
+    
+    m_currentSample = targetSample;
 }
+
+uint32_t AudioWavFile::getTotalSamples() const
+{
+    return m_totalSamples;
+}
+
 } // namespace AudioFile
 } // namespace LahmaPlayer

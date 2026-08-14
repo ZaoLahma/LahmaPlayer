@@ -37,9 +37,14 @@ void DspEngine::read(std::vector<float> &samples, uint32_t numSamples)
     }
 }
 
-void DspEngine::seek(uint32_t numSamples, AudioSource::SeekDirection direction)
+void DspEngine::seek(uint32_t numSamples, LahmaPlayer::AudioSource::AudioSource::SeekDirection direction)
 {
     m_audioSource->seek(numSamples, direction);
+}
+
+uint32_t DspEngine::getTotalSamples() const
+{
+    return m_audioSource->getTotalSamples();
 }
 
 void DspEngine::registerSignalModifier(std::shared_ptr<SignalModifier::SignalModifier> signalModifier)
