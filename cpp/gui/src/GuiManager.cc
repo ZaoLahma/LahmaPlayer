@@ -283,8 +283,12 @@ void GuiManager::playNextTrack()
         return;
     }
 
-    // Stop current track
-    m_audioManager->stopPlayback();
+    // Stop current track if currently playing
+    if (m_isPlaying)
+    {
+        LahmaPlayer::Logger::getInstance().info("Stopping current track");
+        m_audioManager->stopPlayback();
+    }
 
     // Advance to next track (Playlist handles circular wrapping internally)
     if (m_playlist->hasMore())
@@ -297,14 +301,23 @@ void GuiManager::playNextTrack()
         return;
     }
 
-    // Load and play next track
+    // Load next track
     std::string nextFile = m_playlist->currentTrackFileName();
     LahmaPlayer::Logger::getInstance().info("Loading next track: " + nextFile);
 
     bool success = m_audioManager->loadAudioFile(nextFile);
     if (success)
     {
-        m_audioManager->startPlayback();
+        // Only auto-play if we were already playing
+        if (m_isPlaying)
+        {
+            LahmaPlayer::Logger::getInstance().info("Auto-playing next track");
+            m_audioManager->startPlayback();
+        }
+        else
+        {
+            LahmaPlayer::Logger::getInstance().info("Waiting for Play button");
+        }
         m_hasAudioFileLoaded = true;
         m_controls->getCurrentTrackDisplay().setFileName(nextFile);
     }
@@ -324,8 +337,12 @@ void GuiManager::playPreviousTrack()
         return;
     }
 
-    // Stop current track
-    m_audioManager->stopPlayback();
+    // Stop current track if currently playing
+    if (m_isPlaying)
+    {
+        LahmaPlayer::Logger::getInstance().info("Stopping current track");
+        m_audioManager->stopPlayback();
+    }
 
     // Advance to previous track (Playlist handles circular wrapping internally)
     if (m_playlist->hasMore())
@@ -338,14 +355,23 @@ void GuiManager::playPreviousTrack()
         return;
     }
 
-    // Load and play previous track
+    // Load previous track
     std::string prevFile = m_playlist->currentTrackFileName();
     LahmaPlayer::Logger::getInstance().info("Loading previous track: " + prevFile);
 
     bool success = m_audioManager->loadAudioFile(prevFile);
     if (success)
     {
-        m_audioManager->startPlayback();
+        // Only auto-play if we were already playing
+        if (m_isPlaying)
+        {
+            LahmaPlayer::Logger::getInstance().info("Auto-playing previous track");
+            m_audioManager->startPlayback();
+        }
+        else
+        {
+            LahmaPlayer::Logger::getInstance().info("Waiting for Play button");
+        }
         m_hasAudioFileLoaded = true;
         m_controls->getCurrentTrackDisplay().setFileName(prevFile);
     }
