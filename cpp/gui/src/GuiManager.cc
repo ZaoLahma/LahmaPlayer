@@ -125,6 +125,13 @@ void GuiManager::startLoop()
     auto controls = m_controls->createComponent();
     auto system_controls = m_systemControls->createComponent();
 
+    // Set up callbacks for file name updates via controls component
+    m_controls->getCurrentTrackDisplay().setFileNameCallback(
+        [this](const std::string &fileName)
+        {
+            m_fileName = fileName;
+        });
+
     // Create left column with file picker on top and audio controls below
     auto left_column = ftxui::Container::Vertical({file_picker, controls});
 
@@ -175,6 +182,7 @@ void GuiManager::loadAudioFile()
         m_controls->setAudioSource(m_audioManager->getAudioSource());
         m_controls->setAudioStream(m_audioManager->getAudioStream());
         m_controls->setFileName(fileName);
+        m_controls->getCurrentTrackDisplay().setFileName(fileName);
         m_hasAudioFileLoaded = true;
 
         LahmaPlayer::Logger::getInstance().info("Audio file loaded successfully: " + fileName);
@@ -268,6 +276,7 @@ void GuiManager::playNextTrack()
     {
         m_audioManager->startPlayback();
         m_hasAudioFileLoaded = true;
+        m_controls->getCurrentTrackDisplay().setFileName(nextFile);
     }
     else
     {
@@ -308,6 +317,7 @@ void GuiManager::playPreviousTrack()
     {
         m_audioManager->startPlayback();
         m_hasAudioFileLoaded = true;
+        m_controls->getCurrentTrackDisplay().setFileName(prevFile);
     }
     else
     {

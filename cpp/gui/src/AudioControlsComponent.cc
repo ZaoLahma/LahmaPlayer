@@ -12,6 +12,9 @@ AudioControlsComponent::~AudioControlsComponent() {}
 
 ftxui::Component AudioControlsComponent::createComponent()
 {
+    // Create the current track display (file name)
+    auto display = m_currentTrackDisplay.createComponent();
+
     // Create audio controls buttons with ASCII symbols
     auto play_button = ftxui::Button("> Play",
                                       [this]
@@ -50,15 +53,21 @@ ftxui::Component AudioControlsComponent::createComponent()
                                           }
                                       });
 
-    // Create audio controls row (horizontal)
-    auto audio_controls = ftxui::Container::Horizontal({
+    // Create a horizontal row of controls
+    auto controls_row = ftxui::Container::Horizontal({
         prev_button,
         play_button,
         stop_button,
         next_button
     });
 
-    return audio_controls;
+    // Create a vertical layout: display on top, controls row below
+    auto controls_section = ftxui::Container::Vertical({
+        display,
+        controls_row
+    });
+
+    return controls_section;
 }
 
 void AudioControlsComponent::setAudioSource(std::shared_ptr<LahmaPlayer::AudioSource::AudioSource> audioSource)
@@ -74,6 +83,7 @@ void AudioControlsComponent::setAudioStream(std::shared_ptr<LahmaPlayer::AudioSt
 void AudioControlsComponent::setFileName(const std::string &fileName)
 {
     m_fileName = fileName;
+    m_currentTrackDisplay.setFileName(fileName);
 }
 
 void AudioControlsComponent::setIsPlaying(bool isPlaying)
@@ -84,6 +94,7 @@ void AudioControlsComponent::setIsPlaying(bool isPlaying)
 void AudioControlsComponent::loadAudioFile(const std::string &fileName)
 {
     m_fileName = fileName;
+    m_currentTrackDisplay.setFileName(fileName);
     // Note: The actual audio loading is now handled by AudioManager
     // This method just updates the file name in the controls
 }

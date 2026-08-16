@@ -17,7 +17,7 @@ FilePickerComponent::~FilePickerComponent() {}
 
 ftxui::Component FilePickerComponent::createComponent()
 {
-    // Create a menu for audio files
+    // Create a menu for audio files with keyboard navigation
     auto menu = ftxui::Menu(&m_audioFiles, &m_selectedFileIndex);
 
     // Create a renderer for the menu that shows selected file

@@ -6,6 +6,7 @@ add_library(Gui
     src/FilePickerComponent.cc
     src/AudioControlsComponent.cc
     src/SystemControlsComponent.cc
+    src/CurrentTrackDisplayComponent.cc
 )
 
 target_include_directories(Gui

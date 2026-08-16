@@ -3,6 +3,7 @@
 #include "AudioSource.h"
 #include "AudioSourceFactory.h"
 #include "AudioStream.h"
+#include "CurrentTrackDisplayComponent.h"
 #include "ftxui/component/component.hpp"
 #include "ftxui/component/screen_interactive.hpp"
 #include "ftxui/dom/elements.hpp"
@@ -143,6 +144,15 @@ class AudioControlsComponent
         return m_fileName;
     }
 
+    /**
+     * @brief Get the current track display component
+     * @return Reference to the current track display component
+     */
+    CurrentTrackDisplayComponent &getCurrentTrackDisplay()
+    {
+        return m_currentTrackDisplay;
+    }
+
   private:
     // Audio state
     std::shared_ptr<LahmaPlayer::AudioSource::AudioSource> m_audioSource;
@@ -152,6 +162,9 @@ class AudioControlsComponent
     // UI state
     std::atomic<bool> m_isPlaying;
     std::atomic<double> m_progress;
+
+    // Current track display component
+    CurrentTrackDisplayComponent m_currentTrackDisplay;
 
     // Callbacks
     std::function<void()> m_playPauseCallback;
