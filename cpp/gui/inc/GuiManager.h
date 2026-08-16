@@ -6,7 +6,7 @@
 #include "AudioStream.h"
 #include "AudioControlsComponent.h"
 #include "DspEngine.h"
-#include "FilePickerComponent.h"
+#include "DirectoryPickerComponent.h"
 #include "Playlist.h"
 #include "SystemControlsComponent.h"
 #include "CurrentTrackDisplayComponent.h"
@@ -67,7 +67,7 @@ class GuiManager
     std::unique_ptr<AudioManager> m_audioManager;
 
     // UI components
-    std::unique_ptr<FilePickerComponent> m_filePicker;
+    std::unique_ptr<DirectoryPickerComponent> m_directoryPicker;
     std::unique_ptr<AudioControlsComponent> m_controls;
     std::unique_ptr<SystemControlsComponent> m_systemControls;
 
@@ -90,13 +90,12 @@ class GuiManager
     // UI rendering
     ftxui::Component createMainComponent();
     ftxui::Component createFilePickerComponent();
-    void updateAudioFileList();
+    void updateDirectoryList();
     bool isAudioFile(const std::string &filename);
 
     // Playlist
     std::unique_ptr<Playlist> m_playlist;
     void playNextTrack();
     void playPreviousTrack();
-    void resetPlaylist();
 };
 } // namespace LahmaPlayer::Gui

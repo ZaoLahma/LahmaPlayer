@@ -20,18 +20,30 @@ GuiManager::GuiManager() : m_isPlaying(false), m_hasAudioFileLoaded(false), m_pr
     m_audioManager = std::make_unique<AudioManager>();
 
     // Initialize components
-    m_filePicker = std::make_unique<FilePickerComponent>();
+    m_directoryPicker = std::make_unique<DirectoryPickerComponent>();
     m_controls = std::make_unique<AudioControlsComponent>();
     m_systemControls = std::make_unique<SystemControlsComponent>();
 
-    updateAudioFileList();
+    updateDirectoryList();
 
-    // Initialize playlist with same files as file picker
-    if (!m_filePicker->getAudioFiles().empty())
+    // Initialize playlist with same files as directory picker
+    if (!m_directoryPicker->getAudioFiles().empty())
     {
         std::string dirPath = ".";
         m_playlist = std::make_unique<Playlist>();
         m_playlist->loadFromDirectory(dirPath);
+        
+        // Auto-load first audio file on startup
+        if (m_playlist->hasMore())
+        {
+            std::string firstFile = m_playlist->currentTrackFileName();
+            LahmaPlayer::Logger::getInstance().info("Auto-loading first file: " + firstFile);
+            m_audioManager->loadAudioFile(firstFile);
+            if (m_audioManager->getAudioSource())
+            {
+                LahmaPlayer::Logger::getInstance().info("Audio file loaded successfully");
+            }
+        }
     }
     else
     {
@@ -114,16 +126,34 @@ void GuiManager::startLoop()
             stopLoop();
         });
 
-    m_filePicker->setExitCallback(
-        [this]()
-        {
-            stopLoop();
-        });
-
     // Get the components
-    auto file_picker = m_filePicker->createComponent();
+    auto directory_picker = m_directoryPicker->createComponent();
     auto controls = m_controls->createComponent();
     auto system_controls = m_systemControls->createComponent();
+
+    // Set up callbacks for directory changes (for auto-loading first audio file)
+    m_directoryPicker->setDirectoryChangedCallback(
+        [this](const std::string &directory)
+        {
+            LahmaPlayer::Logger::getInstance().info("Directory changed: " + directory);
+            // Auto-load first audio file if available
+            if (!m_playlist || !m_playlist->hasMore())
+            {
+                LahmaPlayer::Logger::getInstance().info("No audio files in directory");
+                return;
+            }
+            std::string firstFile = m_playlist->currentTrackFileName();
+            LahmaPlayer::Logger::getInstance().info("Auto-loading: " + firstFile);
+            m_audioManager->loadAudioFile(firstFile);
+            if (m_audioManager->getAudioSource())
+            {
+                LahmaPlayer::Logger::getInstance().info("Audio file loaded, waiting for Play button");
+            }
+            else
+            {
+                LahmaPlayer::Logger::getInstance().warning("Failed to load audio file");
+            }
+        });
 
     // Set up callbacks for file name updates via controls component
     m_controls->getCurrentTrackDisplay().setFileNameCallback(
@@ -132,8 +162,8 @@ void GuiManager::startLoop()
             m_fileName = fileName;
         });
 
-    // Create left column with file picker on top and audio controls below
-    auto left_column = ftxui::Container::Vertical({file_picker, controls});
+    // Create left column with directory picker and audio controls
+    auto left_column = ftxui::Container::Vertical({directory_picker, controls});
 
     // Create right column with system controls
     auto right_column = ftxui::Container::Vertical({system_controls});
@@ -154,19 +184,19 @@ void GuiManager::stopLoop()
 void GuiManager::loadAudioFile()
 {
     LahmaPlayer::Logger::getInstance().info("loadAudioFile called");
-    LahmaPlayer::Logger::getInstance().info("Selected file index: " +
-                                        std::to_string(m_filePicker->getSelectedFileIndex()));
+    LahmaPlayer::Logger::getInstance().info("Selected directory index: " +
+                                            std::to_string(m_directoryPicker->getSelectedDirectoryIndex()));
     LahmaPlayer::Logger::getInstance().info("Audio files count: " +
-                                        std::to_string(m_filePicker->getAudioFiles().size()));
+                                            std::to_string(m_directoryPicker->getAudioFiles().size()));
 
     // Stop any current playback
     stopPlayback();
 
     // Check if a file is selected
-    int selected_index = m_filePicker->getSelectedFileIndex();
-    if (selected_index >= 0 && selected_index < static_cast<int>(m_filePicker->getAudioFiles().size()))
+    int selected_index = m_directoryPicker->getSelectedDirectoryIndex();
+    if (selected_index >= 0 && selected_index < static_cast<int>(m_directoryPicker->getAudioFiles().size()))
     {
-        std::string fileName = m_filePicker->getAudioFiles()[selected_index];
+        std::string fileName = m_directoryPicker->getAudioFiles()[selected_index];
         LahmaPlayer::Logger::getInstance().info("Selected file: " + fileName);
 
         // Load audio file through audio manager
@@ -189,7 +219,7 @@ void GuiManager::loadAudioFile()
     }
     else
     {
-        LahmaPlayer::Logger::getInstance().warning("No valid file selected");
+        LahmaPlayer::Logger::getInstance().warning("No audio file selected");
     }
 }
 
@@ -229,9 +259,9 @@ void GuiManager::stopPlayback()
     m_audioManager->stopPlayback();
 }
 
-void GuiManager::updateAudioFileList()
+void GuiManager::updateDirectoryList()
 {
-    m_filePicker->updateAudioFileList();
+    m_directoryPicker->updateDirectoryList();
 }
 
 bool GuiManager::isAudioFile(const std::string &filename)

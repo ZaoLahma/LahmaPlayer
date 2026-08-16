@@ -3,7 +3,7 @@ project(Gui)
 
 add_library(Gui
     src/GuiManager.cc
-    src/FilePickerComponent.cc
+    src/DirectoryPickerComponent.cc
     src/AudioControlsComponent.cc
     src/SystemControlsComponent.cc
     src/CurrentTrackDisplayComponent.cc
