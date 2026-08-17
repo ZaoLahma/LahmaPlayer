@@ -42,6 +42,7 @@ GuiManager::GuiManager() : m_isPlaying(false), m_hasAudioFileLoaded(false), m_pr
             if (m_audioManager->getAudioSource())
             {
                 LahmaPlayer::Logger::getInstance().info("Audio file loaded successfully");
+                m_directoryPicker->setLoadedFile(firstFile);
             }
         }
     }
@@ -92,6 +93,7 @@ void GuiManager::startLoop()
         [this]()
         {
             stopPlayback();
+            m_directoryPicker->setLoadedFile("");
             m_hasAudioFileLoaded = false;
         });
 
@@ -213,6 +215,7 @@ void GuiManager::loadAudioFile()
         m_controls->setAudioStream(m_audioManager->getAudioStream());
         m_controls->setFileName(fileName);
         m_controls->getCurrentTrackDisplay().setFileName(fileName);
+        m_directoryPicker->setLoadedFile(fileName);
         m_hasAudioFileLoaded = true;
 
         LahmaPlayer::Logger::getInstance().info("Audio file loaded successfully: " + fileName);
@@ -319,6 +322,7 @@ void GuiManager::playNextTrack()
             LahmaPlayer::Logger::getInstance().info("Waiting for Play button");
         }
         m_hasAudioFileLoaded = true;
+        m_directoryPicker->setLoadedFile(nextFile);
         m_controls->getCurrentTrackDisplay().setFileName(nextFile);
     }
     else
@@ -373,6 +377,7 @@ void GuiManager::playPreviousTrack()
             LahmaPlayer::Logger::getInstance().info("Waiting for Play button");
         }
         m_hasAudioFileLoaded = true;
+        m_directoryPicker->setLoadedFile(prevFile);
         m_controls->getCurrentTrackDisplay().setFileName(prevFile);
     }
     else

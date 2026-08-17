@@ -61,10 +61,22 @@ ftxui::Component DirectoryPickerComponent::createComponent()
         }
         else
         {
-            // Create a simple list of file names
+            std::string loadedFile = m_loadedFile;
+            // Extract basename from loaded file path (e.g., "./test.mp3" -> "test.mp3")
+            std::filesystem::path p(loadedFile);
+            std::string loadedBasename = p.filename().string();
             for (const auto& file : m_audioFiles)
             {
-                elements.push_back(ftxui::text(file));
+                bool is_loaded = (file == loadedBasename);
+                if (is_loaded)
+                {
+                    auto highlighted = ftxui::text("-> " + file) | ftxui::color(ftxui::Color::Green) | ftxui::bold;
+                    elements.push_back(highlighted);
+                }
+                else
+                {
+                    elements.push_back(ftxui::text(file));
+                }
             }
         }
         return ftxui::vbox(elements);

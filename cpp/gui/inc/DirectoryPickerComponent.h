@@ -56,6 +56,24 @@ class DirectoryPickerComponent
     }
 
     /**
+     * @brief Set the currently loaded file
+     * @param fileName The name of the currently loaded file
+     */
+    void setLoadedFile(const std::string &fileName)
+    {
+        m_loadedFile = fileName;
+    }
+
+    /**
+     * @brief Get the currently loaded file
+     * @return The name of the currently loaded file (empty if none)
+     */
+    const std::string &getLoadedFile() const
+    {
+        return m_loadedFile;
+    }
+
+    /**
      * @brief Set the callback for exit operations
      * @param callback Function to call when exit is requested
      */
@@ -140,6 +158,7 @@ class DirectoryPickerComponent
 
     // Audio files in current directory
     std::vector<std::string> m_audioFiles;
+    std::string m_loadedFile;
 
     // Callbacks
     std::function<void(std::string directory)> m_directoryChangedCallback;
