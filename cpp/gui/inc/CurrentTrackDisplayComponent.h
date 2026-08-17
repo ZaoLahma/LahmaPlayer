@@ -1,8 +1,10 @@
 #pragma once
 
-#include "ftxui/component/component.hpp"
+#include "ftxui/component/screen_interactive.hpp"
+#include <atomic>
 #include <functional>
 #include <string>
+#include <thread>
 
 namespace LahmaPlayer::Gui
 {
@@ -30,8 +32,28 @@ public:
    */
   void setFileNameCallback(std::function<void(const std::string &)> callback);
 
+  /**
+   * @brief Set the screen reference for forced redraws
+   */
+  void setScreen(ftxui::ScreenInteractive *screen);
+
+  /**
+   * @brief Start scrolling animation
+   */
+  void startScrolling();
+
+  /**
+   * @brief Stop scrolling animation
+   */
+  void stopScrolling();
+
 private:
   std::string m_fileName;
   std::function<void(const std::string &)> m_fileNameCallback;
+  int m_scrollOffset;
+  ftxui::ScreenInteractive *m_screen;
+  std::thread m_scrollingThread;
+  std::atomic<bool> m_scrollActive;
+
 };
 } // namespace LahmaPlayer::Gui

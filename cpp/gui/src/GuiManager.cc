@@ -78,6 +78,7 @@ void GuiManager::startLoop()
             if (m_isPlaying)
             {
                 stopPlayback();
+                m_controls->getCurrentTrackDisplay().stopScrolling();
             }
             else
             {
@@ -86,6 +87,7 @@ void GuiManager::startLoop()
                     loadAudioFile();
                 }
                 startPlayback();
+                m_controls->getCurrentTrackDisplay().startScrolling();
             }
         });
 
@@ -93,6 +95,7 @@ void GuiManager::startLoop()
         [this]()
         {
             stopPlayback();
+            m_controls->getCurrentTrackDisplay().stopScrolling();
             m_directoryPicker->setLoadedFile("");
             m_hasAudioFileLoaded = false;
         });
@@ -127,6 +130,9 @@ void GuiManager::startLoop()
         {
             stopLoop();
         });
+
+    // Pass screen reference for forced redraws (must be done before createComponent)
+    m_controls->getCurrentTrackDisplay().setScreen(m_screen.get());
 
     // Get the components
     auto directory_picker = m_directoryPicker->createComponent();
@@ -175,11 +181,16 @@ void GuiManager::startLoop()
 
     // Set the main component for the screen
     m_component = main_container;
+
     m_screen->Loop(m_component);
 }
 
 void GuiManager::stopLoop()
 {
+    if (m_isPlaying)
+    {
+        m_controls->getCurrentTrackDisplay().stopScrolling();
+    }
     m_screen->Exit();
 }
 
