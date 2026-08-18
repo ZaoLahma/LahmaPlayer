@@ -1,13 +1,19 @@
 #include "CurrentTrackDisplayComponent.h"
-#include <ftxui/component/component.hpp>
-#include <ftxui/dom/elements.hpp>
 #include <algorithm>
 #include <chrono>
+#include <ftxui/component/component.hpp>
+#include <ftxui/component/event.hpp>
+#include <ftxui/dom/elements.hpp>
 #include <thread>
 
 namespace LahmaPlayer::Gui
 {
-CurrentTrackDisplayComponent::CurrentTrackDisplayComponent() : m_fileName(""), m_fileNameCallback(nullptr), m_scrollOffset(0), m_screen(nullptr), m_scrollActive(false) {}
+static constexpr int kDisplayNameWidth = 40;
+
+CurrentTrackDisplayComponent::CurrentTrackDisplayComponent()
+    : m_fileName(""), m_fileNameCallback(nullptr), m_scrollOffset(0), m_screen(nullptr), m_scrollActive(false)
+{
+}
 
 CurrentTrackDisplayComponent::~CurrentTrackDisplayComponent()
 {
@@ -23,31 +29,33 @@ void CurrentTrackDisplayComponent::startScrolling()
 {
     stopScrolling();
     m_scrollActive = true;
-    m_scrollingThread = std::thread([this]()
-    {
-        while (m_scrollActive.load())
+    m_scrollingThread = std::thread(
+        [this]()
         {
-            std::string fileName;
-            ftxui::ScreenInteractive *screen;
+            while (m_scrollActive.load())
             {
-                fileName = m_fileName;
-                screen = m_screen;
-            }
-            if (!fileName.empty() && screen)
-            {
-                // Post to UI thread - this lambda executes on the FTXUI main loop thread
-                screen->Post([this, screen]()
+                std::string fileName;
+                ftxui::ScreenInteractive *screen;
                 {
-                    if (m_scrollActive.load())
-                    {
-                        m_scrollOffset++;
-                        screen->RequestAnimationFrame();
-                    }
-                });
+                    fileName = m_fileName;
+                    screen = m_screen;
+                }
+                if (!fileName.empty() && screen)
+                {
+                    int period = std::max(kDisplayNameWidth, static_cast<int>(fileName.length()));
+                    screen->Post(
+                        [this, screen, period]()
+                        {
+                            if (m_scrollActive.load())
+                            {
+                                m_scrollOffset = (m_scrollOffset + 1) % period;
+                            }
+                        });
+                    screen->Post(ftxui::Event::Custom);
+                }
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        }
-    });
+        });
 }
 
 void CurrentTrackDisplayComponent::stopScrolling()
@@ -61,47 +69,46 @@ void CurrentTrackDisplayComponent::stopScrolling()
 
 ftxui::Component CurrentTrackDisplayComponent::createComponent()
 {
-  // Use Renderer with capture by value to avoid capture issues and allow updates
-  auto component = ftxui::Renderer([this]
-  {
-      if (m_fileName.empty())
-      {
-          return ftxui::text("") | ftxui::color(ftxui::Color::White);
-      }
+    auto component = ftxui::Renderer(
+        [this]
+        {
+            if (m_fileName.empty())
+            {
+                return ftxui::text("") | ftxui::color(ftxui::Color::White);
+            }
 
-      // Use a fixed width of 40 characters for scrolling
-      int screenWidth = 40;
+            int len = static_cast<int>(m_fileName.length());
+            int gap = std::max(kDisplayNameWidth - len, 0);
+            int period = len + gap;
 
-      // Build a scrolling marquee: filename + large gap of spaces + filename + ...
-      std::string display = m_fileName;
-      std::string padding(screenWidth, ' ');
-      while (display.length() < static_cast<unsigned>(screenWidth * 3))
-      {
-          display += padding + m_fileName;
-      }
+            std::string unit = m_fileName + std::string(static_cast<size_t>(gap), ' ');
+            std::string display;
+            size_t needed = static_cast<size_t>(period - 1 + kDisplayNameWidth);
+            while (display.length() < needed)
+            {
+                display += unit;
+            }
 
-      // Scroll through the display string
-      int start = m_scrollOffset % static_cast<int>(display.length());
-      std::string scrolled = display.substr(start, screenWidth);
+            size_t offset = static_cast<size_t>(m_scrollOffset % period);
+            return ftxui::text(display.substr(offset, static_cast<size_t>(kDisplayNameWidth))) |
+                   ftxui::color(ftxui::Color::White);
+        });
 
-      return ftxui::text(scrolled) | ftxui::color(ftxui::Color::White);
-  });
-
-  return component;
+    return component;
 }
 
 void CurrentTrackDisplayComponent::setFileName(const std::string &fileName)
 {
-  m_fileName = fileName;
-  // The Renderer will automatically update with the new file name on next render
-  if (m_fileNameCallback)
-  {
-    m_fileNameCallback(fileName);
-  }
+    m_fileName = fileName;
+    m_scrollOffset = 0;
+    if (m_fileNameCallback)
+    {
+        m_fileNameCallback(fileName);
+    }
 }
 
 void CurrentTrackDisplayComponent::setFileNameCallback(std::function<void(const std::string &)> callback)
 {
-  m_fileNameCallback = callback;
+    m_fileNameCallback = callback;
 }
 } // namespace LahmaPlayer::Gui
