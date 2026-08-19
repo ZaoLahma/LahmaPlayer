@@ -43,6 +43,8 @@ GuiManager::GuiManager() : m_isPlaying(false), m_hasAudioFileLoaded(false), m_pr
             {
                 LahmaPlayer::Logger::getInstance().info("Audio file loaded successfully");
                 m_directoryPicker->setLoadedFile(firstFile);
+                m_hasAudioFileLoaded = true;
+                m_controls->getCurrentTrackDisplay().setFileName(firstFile);
             }
         }
     }
