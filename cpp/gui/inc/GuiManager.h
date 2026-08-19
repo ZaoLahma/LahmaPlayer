@@ -14,12 +14,9 @@
 #include "ftxui/component/screen_interactive.hpp"
 #include "ftxui/dom/elements.hpp"
 #include <atomic>
-#include <filesystem>
-#include <fstream>
 #include <memory>
 #include <string>
 #include <thread>
-#include <vector>
 
 namespace LahmaPlayer::Gui
 {
@@ -83,13 +80,8 @@ class GuiManager
     std::atomic<bool> m_hasAudioFileLoaded;
     std::atomic<double> m_progress;
 
-    // File picker state
-    std::vector<std::string> m_audioFiles;
-    int m_selectedFileIndex;
-
     // UI rendering
     ftxui::Component createMainComponent();
-    ftxui::Component createFilePickerComponent();
     void updateDirectoryList();
     bool isAudioFile(const std::string &filename);
 
