@@ -98,8 +98,11 @@ void GuiManager::startLoop()
         {
             stopPlayback();
             m_controls->getCurrentTrackDisplay().stopScrolling();
-            m_directoryPicker->setLoadedFile("");
-            m_hasAudioFileLoaded = false;
+            m_controls->setProgress(0.0);
+            if (m_audioManager && m_audioManager->getAudioSource())
+            {
+                m_audioManager->seek(m_audioManager->getTotalSamples(), LahmaPlayer::AudioSource::AudioSource::SeekDirection::Backward);
+            }
         });
 
     // Set up callbacks for controls component (for file selection)
