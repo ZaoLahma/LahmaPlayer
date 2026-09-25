@@ -7,7 +7,7 @@
 namespace LahmaPlayer::Gui
 {
 DirectoryPickerComponent::DirectoryPickerComponent()
-    : m_currentDirectory("."), m_selectedDirectoryIndex(0)
+    : m_currentDirectory(std::filesystem::current_path().string()), m_selectedDirectoryIndex(0)
 {
     updateDirectoryList();
 }
@@ -178,6 +178,7 @@ void DirectoryPickerComponent::enterDirectory(int index)
         }
         
         current /= dir_name;
+        current = current.lexically_normal();
         m_currentDirectory = current.string();
         m_selectedDirectoryIndex = 0;
         
@@ -194,16 +195,8 @@ void DirectoryPickerComponent::enterDirectory(int index)
 void DirectoryPickerComponent::goUp()
 {
     std::filesystem::path current(m_currentDirectory);
-    std::string parent_path = current.parent_path().string();
-    
-    if (parent_path == ".")
-    {
-        m_currentDirectory = parent_path;
-    }
-    else
-    {
-        m_currentDirectory = parent_path;
-    }
+    current = current.parent_path();
+    m_currentDirectory = current.string();
     
     updateDirectoryList();
 

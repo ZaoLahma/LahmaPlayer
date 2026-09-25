@@ -7,6 +7,7 @@
 #include "Logger.h"
 #include <functional>
 #include <memory>
+#include <portaudio.h>
 #include <string>
 
 namespace LahmaPlayer::Gui
@@ -16,6 +17,15 @@ class AudioManager
   public:
     AudioManager();
     ~AudioManager();
+
+    /**
+     * @brief Get PortAudio initialized status
+     * @return true if PortAudio is initialized
+     */
+    static bool isPaInitialized()
+    {
+        return s_paInitialized;
+    }
 
     /**
      * @brief Load an audio file
@@ -69,17 +79,13 @@ class AudioManager
      */
     bool seek(uint32_t numSamples, LahmaPlayer::AudioSource::AudioSource::SeekDirection direction)
     {
-        if (m_audioSource)
+        if (m_audioSource && m_audioStream)
         {
-            // Get current position before seeking
-            uint32_t currentPosition = m_audioSource->getTotalSamples();
+            m_audioStream->seek(numSamples, direction);
             
-            m_audioSource->seek(numSamples, direction);
-            
-            // Call seek callback with new position
             if (m_onSeekCallback)
             {
-                m_onSeekCallback(m_audioSource->getTotalSamples());
+                m_onSeekCallback(m_audioSource->getCurrentSamplePosition());
             }
             
             return true;
@@ -124,5 +130,7 @@ class AudioManager
     std::function<void()> m_onPlaybackFinishedCallback;
     std::function<void(uint32_t position)> m_onSeekCallback;
     bool m_isPlaying = false;
+
+    static bool s_paInitialized;
 };
 } // namespace LahmaPlayer::Gui

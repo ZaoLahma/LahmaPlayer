@@ -144,27 +144,14 @@ void GuiManager::startLoop()
     auto controls = m_controls->createComponent();
     auto system_controls = m_systemControls->createComponent();
 
-    // Set up callbacks for directory changes (for auto-loading first audio file)
+    // Set up callbacks for directory changes (just refresh playlist, don't touch playback)
     m_directoryPicker->setDirectoryChangedCallback(
         [this](const std::string &directory)
         {
             LahmaPlayer::Logger::getInstance().info("Directory changed: " + directory);
-            // Auto-load first audio file if available
-            if (!m_playlist || !m_playlist->hasMore())
+            if (m_playlist)
             {
-                LahmaPlayer::Logger::getInstance().info("No audio files in directory");
-                return;
-            }
-            std::string firstFile = m_playlist->currentTrackFileName();
-            LahmaPlayer::Logger::getInstance().info("Auto-loading: " + firstFile);
-            m_audioManager->loadAudioFile(firstFile);
-            if (m_audioManager->getAudioSource())
-            {
-                LahmaPlayer::Logger::getInstance().info("Audio file loaded, waiting for Play button");
-            }
-            else
-            {
-                LahmaPlayer::Logger::getInstance().warning("Failed to load audio file");
+                m_playlist->loadFromDirectory(directory);
             }
         });
 
@@ -202,44 +189,39 @@ void GuiManager::stopLoop()
 void GuiManager::loadAudioFile()
 {
     LahmaPlayer::Logger::getInstance().info("loadAudioFile called");
-    LahmaPlayer::Logger::getInstance().info("Selected directory index: " +
-                                            std::to_string(m_directoryPicker->getSelectedDirectoryIndex()));
-    LahmaPlayer::Logger::getInstance().info("Audio files count: " +
-                                            std::to_string(m_directoryPicker->getAudioFiles().size()));
 
-    // Stop any current playback
-    stopPlayback();
-
-    // Check if a file is selected
-    int selected_index = m_directoryPicker->getSelectedDirectoryIndex();
-    if (selected_index >= 0 && selected_index < static_cast<int>(m_directoryPicker->getAudioFiles().size()))
+    if (!m_playlist || !m_playlist->hasMore())
     {
-        std::string fileName = m_directoryPicker->getAudioFiles()[selected_index];
-        LahmaPlayer::Logger::getInstance().info("Selected file: " + fileName);
-
-        // Load audio file through audio manager
-        bool success = m_audioManager->loadAudioFile(fileName);
-
-        if (!success)
-        {
-            LahmaPlayer::Logger::getInstance().warning("Failed to load audio file: " + fileName);
-            return;
-        }
-
-        // Update controls with new audio source
-        m_controls->setAudioSource(m_audioManager->getAudioSource());
-        m_controls->setAudioStream(m_audioManager->getAudioStream());
-        m_controls->setFileName(fileName);
-        m_controls->getCurrentTrackDisplay().setFileName(fileName);
-        m_directoryPicker->setLoadedFile(fileName);
-        m_hasAudioFileLoaded = true;
-
-        LahmaPlayer::Logger::getInstance().info("Audio file loaded successfully: " + fileName);
+        LahmaPlayer::Logger::getInstance().warning("No tracks in playlist");
+        return;
     }
-    else
+
+    // Stop any current playback only if we're not already playing (i.e., user explicitly loading a new file)
+    if (!m_isPlaying)
     {
-        LahmaPlayer::Logger::getInstance().warning("No audio file selected");
+        stopPlayback();
     }
+
+    std::string fileName = m_playlist->currentTrackFileName();
+    LahmaPlayer::Logger::getInstance().info("Loading file from playlist: " + fileName);
+
+    bool success = m_audioManager->loadAudioFile(fileName);
+
+    if (!success)
+    {
+        LahmaPlayer::Logger::getInstance().warning("Failed to load audio file: " + fileName);
+        return;
+    }
+
+    // Update controls with new audio source
+    m_controls->setAudioSource(m_audioManager->getAudioSource());
+    m_controls->setAudioStream(m_audioManager->getAudioStream());
+    m_controls->setFileName(fileName);
+    m_controls->getCurrentTrackDisplay().setFileName(fileName);
+    m_directoryPicker->setLoadedFile(fileName);
+    m_hasAudioFileLoaded = true;
+
+    LahmaPlayer::Logger::getInstance().info("Audio file loaded successfully: " + fileName);
 }
 
 void GuiManager::startPlayback()

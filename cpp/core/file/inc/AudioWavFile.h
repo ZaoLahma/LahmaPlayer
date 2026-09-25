@@ -25,6 +25,7 @@ class AudioWavFile : public AudioFile
     void read(std::vector<float> &samples, uint32_t numSamples) override;
     void seek(uint32_t numSamples, LahmaPlayer::AudioSource::AudioSource::SeekDirection direction) override;
     uint32_t getTotalSamples() const override;
+    uint32_t getCurrentSamplePosition() const override;
 
   private:
     struct WavHeader

@@ -92,6 +92,11 @@ uint32_t AudioMp3File::getTotalSamples() const
     return static_cast<uint32_t>(m_decoder.detected_samples);
 }
 
+uint32_t AudioMp3File::getCurrentSamplePosition() const
+{
+    return m_currentSample;
+}
+
 size_t AudioMp3File::skipID3Header(std::fstream &file)
 {
     char header[10];

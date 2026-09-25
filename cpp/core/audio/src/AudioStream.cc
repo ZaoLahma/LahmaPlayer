@@ -6,7 +6,7 @@
 
 namespace LahmaPlayer::AudioStream
 {
-AudioStream::AudioStream() {}
+AudioStream::AudioStream() : m_stream(nullptr), m_playing(false) {}
 
 AudioStream::~AudioStream()
 {
@@ -14,15 +14,18 @@ AudioStream::~AudioStream()
     {
         stop();
     }
-    Pa_Terminate();
 }
 
 void AudioStream::start(std::shared_ptr<AudioSource::AudioSource> audioSource)
 {
+    if (m_playing && m_stream)
+    {
+        stop();
+    }
+
     m_audioSource = audioSource;
     m_playing = true;
 
-    Pa_Initialize();
     m_audioFormat = m_audioSource->getAudioFormat();
     Pa_OpenDefaultStream(&m_stream, 0, m_audioFormat.numChannels, paFloat32, m_audioFormat.sampleRate, 256,
                          &AudioStream::callbackStatic, this);
@@ -35,9 +38,9 @@ void AudioStream::stop()
     {
         Pa_StopStream(m_stream);
         Pa_CloseStream(m_stream);
+        m_stream = nullptr;
     }
 
-    m_stream = nullptr;
     m_playing = false;
 }
 

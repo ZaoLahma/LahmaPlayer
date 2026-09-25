@@ -17,6 +17,7 @@ class AudioMp3File : public AudioFile
     void read(std::vector<float> &samples, uint32_t numSamples) override;
     void seek(uint32_t numSamples, LahmaPlayer::AudioSource::AudioSource::SeekDirection direction) override;
     uint32_t getTotalSamples() const override;
+    uint32_t getCurrentSamplePosition() const override;
 
     static size_t skipID3Header(std::fstream &file);
 

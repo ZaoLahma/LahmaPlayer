@@ -4,12 +4,26 @@
 
 namespace LahmaPlayer::Gui
 {
+bool AudioManager::s_paInitialized = false;
+
 AudioManager::AudioManager()
 {
     LahmaPlayer::Logger::getInstance().info("AudioManager initialized");
+    if (!s_paInitialized)
+    {
+        Pa_Initialize();
+        s_paInitialized = true;
+    }
 }
 
-AudioManager::~AudioManager() {}
+AudioManager::~AudioManager()
+{
+    if (s_paInitialized)
+    {
+        Pa_Terminate();
+        s_paInitialized = false;
+    }
+}
 
 bool AudioManager::loadAudioFile(const std::string &fileName)
 {

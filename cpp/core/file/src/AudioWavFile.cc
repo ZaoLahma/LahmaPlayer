@@ -91,5 +91,10 @@ uint32_t AudioWavFile::getTotalSamples() const
     return m_totalSamples;
 }
 
+uint32_t AudioWavFile::getCurrentSamplePosition() const
+{
+    return m_currentSample;
+}
+
 } // namespace AudioFile
 } // namespace LahmaPlayer

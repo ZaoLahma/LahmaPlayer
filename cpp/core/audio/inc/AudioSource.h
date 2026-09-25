@@ -34,5 +34,10 @@ class AudioSource
     {
         return 0;
     }
+
+    virtual uint32_t getCurrentSamplePosition() const
+    {
+        return 0;
+    }
 };
 } // namespace LahmaPlayer::AudioSource

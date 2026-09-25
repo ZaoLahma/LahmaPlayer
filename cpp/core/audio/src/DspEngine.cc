@@ -47,6 +47,11 @@ uint32_t DspEngine::getTotalSamples() const
     return m_audioSource->getTotalSamples();
 }
 
+uint32_t DspEngine::getCurrentSamplePosition() const
+{
+    return m_audioSource->getCurrentSamplePosition();
+}
+
 void DspEngine::registerSignalModifier(std::shared_ptr<SignalModifier::SignalModifier> signalModifier)
 {
     m_signalModifiers.push_back(signalModifier);
